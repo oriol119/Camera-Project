@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/videos_openCV.css')}}" >
+
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    
+  </head>
+
+  <body>
+    
+    <ul>
+      <li><a href="/frame">Primer Frame </a></li>
+      <li><a class="active" href="/">Videos en directe</a></li>
+      <li><a href="/parametres"> Parametrització</a></li>
+      <li><a href="/angles">Objectes i Angles </a></li>      
+    </ul>
+
+    <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+
+    
+    <h1 id = "titol_video"> <b>Sortides OpenCV</b> </h1>
+
+    <span id = "span_botons">
+
+      <form class="myButtonForm myButtonRight" action="/video1">
+        <input class = "myButton " type="submit" value="Video Directe Amplitut" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video2">
+        <input class = "myButton" type="submit" value="Video Directe Resta" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video3">
+        <input class = "myButton " type="submit" value="Video Directe Gris" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video4">
+        <input class = "myButton" type="submit" value="Video Directe Binari" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video5">
+        <input class = "myButton " type="submit" value="Video Directe Contorns" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video6">
+        <input class = "myButton" type="submit" value="Video Directe Keypoints" />
+      </form>
+      <form class="myButtonForm myButtonRight" action="/video8">
+        <input class = "myButton" type="submit" value="Video Directe Resta 70%" />
+      </form>
+
+    </span>
+
+
+    {% if a == 2 %}
+    <h1 id="static" > Video Resta </h1>
+    <img id="sta_video" src="{{ url_for('video3') }}">
+
+    {% elif a == 3 %}
+    <h1 id="static" > Video Gris </h1>
+    <img id="sta_video" src="{{ url_for('video4') }}">
+
+    {% elif a == 4 %}
+    <h1 id="static" > Video Binari </h1>
+    <img id="sta_video" src="{{ url_for('video5') }}">
+
+    {% elif a == 5 %}
+    <h1 id="static" > Video Contorns </h1>
+    <img id="sta_video" src="{{ url_for('video6') }}">
+
+    {% elif a == 6 %}
+    <h1 id="static" > Video Keypoints </h1>
+    <img id="sta_video" src="{{ url_for('video7') }}">
+
+    {% elif a == 8 %}
+    <h1 id="static" > Video Resta 70% </h1>
+    <img id="sta_video" src="{{ url_for('video8') }}">
+
+    {% else %}
+    <h1 id="static" > Video Amplitut </h1>
+    <img id="sta_video" src="{{ url_for('video2') }}">
+    
+    {% endif %}
+    
+  </body>
+</html>

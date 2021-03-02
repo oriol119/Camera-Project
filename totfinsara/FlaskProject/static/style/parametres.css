@@ -1,0 +1,166 @@
+body {
+    margin:0;
+}
+
+ul {
+    z-index: 2;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) {
+    background-color: #b3b4b3;
+}
+
+.active {
+    background-color: #b3b4b3;
+}
+
+
+#parametritzacio {
+    position: absolute;
+    top: 7%;
+    left: 35%;
+}
+
+#parametres_span_left {
+
+    width: 25%;
+    height: 70%;
+    position: absolute;
+    left: 2%;
+    top: 25%; 
+    background-color: #333333;
+
+}
+
+#parametres_span_right {
+
+    width: 25%;
+    height: 70%;
+    position: absolute;
+    right: 2%;
+    top: 25%; 
+    background-color: #333333;
+
+}
+
+.titol_parametres {
+
+    color: white;
+    font-size: 15px;
+    display:block; 
+    margin-top: 25px;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.input_params {
+
+    display: block;
+    margin-top: 24px;
+}
+
+#kp_video {
+    position:absolute;
+    top: 29%;
+    left: 29%;
+    width: 42%;
+}
+
+#minThreshold {
+    margin-top: 32px;
+}
+
+#minDistBetweenBlobs_sentence{
+
+    width: 150px;
+}
+
+
+
+#guardar_params {
+    position: absolute;
+    left: 100px;
+    top: 90%;
+}
+
+
+#inputfile {
+    position: absolute;
+    left: 100px;
+    top: 1000px;
+}
+
+#output {
+    position: absolute;
+    top: 1050px;
+    width: 500px;
+    height: 200px;
+    left: 100px;
+}
+
+#paramsDefecte {
+    position: absolute;
+    top: 90%;
+    left: 34%;
+}
+
+#netejar {
+    position: absolute;
+    top: 90%;
+    left: 54%;
+}
+
+#llegir_arxiu{
+    position: absolute;
+    top: 1000px;
+    left: 300px;
+}
+
+#span_valors_params  {
+    position: absolute;
+    left: 65%;
+    top: 0%;
+}
+
+#span_valors_params2 {
+    position: absolute;
+    left: 65%;
+    top: 0%;
+
+}
+
+#span_titol_params {
+    position: relative;
+    left: 2%;
+    width: 40%;
+}
+
+#logo {
+    position: absolute;
+    right: 2%;
+    top: 2%;
+    width: 20%;
+    height: 5%;
+    z-index: 3;
+
+}

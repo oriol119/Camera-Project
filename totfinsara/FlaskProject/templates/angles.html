@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/angles.css')}}" >
+
+
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  </head>
+
+
+  <body style="height: 900px;">
+
+    <ul>
+      <li><a href="/frame">Primer Frame </a></li>
+      <li><a href="/">Videos en directe</a></li>
+      <li><a href="/parametres"> Parametrització</a></li>
+      <li><a class="active" href="/angles">Objectes i Angles </a></li>
+      
+    </ul>
+
+    <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+
+
+    <h1 id="titol_video_kp">Viedo Keypoints</h1>
+    <h1 id="titol_llista">LLista Objectes i Angles</h1>
+    <img id="kp_video" src="{{ url_for('video7') }}">
+
+    <form  action="#" method="post">
+      {% if llista_bool %}
+      {% if llista|length > 0 %}
+      <span id = span_llista>
+        <p class="sor"> {{llista}} </p>
+      </span> 
+      {% else %}
+      <span id = span_llista>
+        <p class="sor"> No tenim llista perque no hi han objectes </p>
+      </span> 
+      {% endif %}
+      {% else %}
+      <span id = span_llista>
+        <p class="sor"> No tenim llista encara </p>
+      </span> 
+      {% endif %}  
+      <p><input id=imprimir_llista type="submit" name="IMPRIMIR LLISTA"/> </p>
+
+    </form> 
+    
+    <h1> </h1>
+
+  </body>
+  <footer > 
+
+  </footer>
+</html>
+
+
+
+
+

@@ -1,0 +1,19 @@
+<Elements>  
+    <Parametres> 
+        <minArea>150</minArea> 
+        <maxArea>1500</maxArea> 
+        <colorBlob>0</colorBlob>
+        <minDistBetweenBlobs>10</minDistBetweenBlobs>
+        <minThreshold>100</minThreshold>
+        <maxThreshold>255</maxThreshold>
+        <thresholdStep>200</thresholdStep>
+        <minRepeatability>1</minRepeatability>
+        <minCircularity>0.8</minCircularity>    
+        <maxCircularity>1</maxCircularity> 
+        <minConvexity>0.95</minConvexity>
+        <maxConvexity>1</maxConvexity>
+        <minInertiaRatio>0.1</minInertiaRatio> 
+        <maxInertiaRatio>1</maxInertiaRatio>  
+
+    </Parametres>  
+</Elements>

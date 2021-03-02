@@ -1,0 +1,213 @@
+body {
+    margin:0;
+}
+
+ul {
+    z-index: 2;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.active) {
+    background-color: #b3b4b3;
+}
+
+.active {
+    background-color: #b3b4b3;
+}
+
+#span_botons{
+    width: 190px;
+    height: 330px;
+    position: absolute;
+    left: 30px;
+    top: 120px; 
+    background-color: #333333;
+}
+
+.myButton {
+    box-shadow:inset 0px 1px 0px 0px #d9fbbe;
+    background:linear-gradient(to bottom, #b8e356 5%, #a5cc52 100%);
+    background-color:#b8e356;
+    border-radius:6px;
+    border:1px solid #83c41a;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:11px;
+    font-weight:bold;
+    padding:5px 10px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #86ae47;
+    width: 150px;
+}
+
+.myButton:hover {
+    background:linear-gradient(to bottom, #a5cc52 5%, #b8e356 100%);
+    background-color:#a5cc52;
+}
+
+.myButton:active {
+    position:relative;
+    top:1px;
+}
+
+#fons{
+    height: 500px;
+}
+
+.myButtonForm {
+    width: auto;
+    display:inline-block;
+    margin-top: 15px;
+}
+
+.myButtonRight{
+    margin-left: 20px;
+}
+
+#sta_video {
+    position: absolute;
+    left: 4%;
+    top: 25%;
+    width: 45%;
+}
+
+#static {
+    position: absolute;
+    left: 13%;
+    top: 10%;
+}
+
+#sta_video2 {
+    position: absolute;
+    left: 51%;
+    top: 25%;
+    width: 45%;
+
+}
+
+#static2 {
+    position: absolute;
+    left: 60%;
+    top: 10%;
+}
+
+#newStatic {
+    position: absolute;
+    top: 300px;
+    left: 300px;
+}
+
+#img_chooser {
+    position: absolute;
+    left: 100px;
+    top: 115%;  
+}
+#blah {  
+    width: 175px;
+    height: 140px;
+}
+
+#img_chooser2 {
+    position: absolute;
+    left: 400px;
+    top: 115%;  
+}
+
+#blah2 {  
+    width: 175px;
+    height: 140px;
+}
+
+#nom_frame{
+    width: 25%;
+    position: absolute;
+    top: 100%;
+    left: 4%;
+}
+
+#use_frame{
+    position: absolute;
+    top:100%;
+    left: 33%;
+}
+
+#nom_frame2{
+    width: 25%;
+    position: absolute;
+    top: 100%;
+    left: 51%;
+}
+
+#use_frame2{
+    position: absolute;
+    top:100%;
+    left: 79%;
+}
+
+#treure_frame{
+    position: absolute;
+    top:520px;
+    left: 520px;
+}
+
+#capturar_frame1 {
+    position: absolute;
+    top:90%;
+    left: 30%;
+}
+
+#guardar_frame1 {
+    position: absolute;
+    top:90%;
+    left: 10%;
+}
+
+#guardar_frame2 {
+    position: absolute;
+    top:90%;
+    left: 60%;
+}
+
+#capturar_frame2 {
+    position: absolute;
+    top:90%;
+    left: 80%;
+}
+.red{
+    color: red;
+}
+
+.green {
+    color: green;
+}
+
+#logo {
+    position: absolute;
+    right: 2%;
+    top: 2%;
+    width: 20%;
+    height: 5%;
+    z-index: 3;
+
+}
