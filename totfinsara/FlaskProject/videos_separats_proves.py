@@ -78,6 +78,9 @@ def function(flag, cam):
     global flaggflagg
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
     global frame_valid
+    global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
+
+
     
     grados_flagg = False
     done = False
@@ -234,7 +237,7 @@ def function(flag, cam):
         resta = frame_inici - im_rdis
         resta2 = frame_inici2 - im_rdis
 
-        resta_altura =  frame_inici - im_rdis
+        resta_altura =  resta
 
 
         acum1 = 0
@@ -245,6 +248,16 @@ def function(flag, cam):
                 
                 acum1 += resta[i][j]
                 acum2 += resta2[i][j]
+
+                if resta[i][j] > 0.01:
+                    resta[i][j]= 0    #blanc
+                else:
+                    resta[i][j]= 100  #negre
+
+                if resta_altura[i][j] > 0.01:
+                    resta_altura[i][j]= 0   #blanc
+                else:
+                    resta_altura[i][j]= 100
 
         
         
@@ -263,139 +276,11 @@ def function(flag, cam):
             frame_valid = 2
 
 
-        for y in range(0,171):
-            for x in range(0,223):
-                
-                if resta[y][x] > 0.01:
-                    resta[y][x]= 0   #blanc
-                else:
-                    resta[y][x]= 100
-                
-                if resta_altura[y][x] > 0.01:
-                    resta_altura[y][x]= 0   #blanc
-                else:
-                    resta_altura[y][x]= 100
+        calcularInfoResta(resta, amplitut_color, detector)
+        calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz)
 
-
-
-        matriu_blanc = np.zeros((172,224), np.uint8)
-        
-        resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
-        img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
-        keypoints = detector.detect(img_grey)
-        _, binary = cv2.threshold(img_grey, 100,255, cv2.THRESH_BINARY)
-        contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
-
-        llistaCentreMases = []
-        if len(keypoints) > 0:
-            
-            for k in range(len(keypoints)):
-                llista = []
-                
-                x = keypoints[k].pt[0]
-                y = keypoints[k].pt[1]
-                
-                cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
-                
-                for cnt in contours:
-                    
-                    area = cv2.contourArea(cnt)
-                    
-                    if area > 200:   
-                        
-                        M = cv2.moments(cnt)
-                        
-                        if M['m00'] != 0:
-                            
-                            #centroid
-                            x = M['m10'] / M['m00']
-                            y = M['m01'] / M['m00']
-                            
-                            if [x,y] not in llistaCentreMases:
-                                
-                                llistaCentreMases.append([x,y])
-                                
-                        
-                        if M['mu20']-M['mu02'] != 0:
-                            
-                            grados_flagg = True
-                            
-                            theta = 0.5 * np.arctan (2 * M['mu11']/((M['mu20']-M['mu02'])))
-                            grados = (theta / math.pi) * 180
-                            
-                            llista.append(grados)
-
-                llista_bool = True
-
-        #print(llistaCentreMases)       
-        keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
-        
-        img_empty = 255 * np.ones((224,172), dtype=np.uint8)
         
 
-        resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
-        img_grey_rest = cv2.cvtColor(resta_altura, cv2.COLOR_BGR2GRAY)
-        keypoints_rest = detector.detect(img_grey_rest)
-        _, binary_rest = cv2.threshold(img_grey_rest, 100,255, cv2.THRESH_BINARY)
-        contours_rest, _ = cv2.findContours(binary_rest, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        img_contorns_rest = cv2.drawContours(matriu_blanc, contours_rest, -1 ,(255,0,0), 1)
-         
-        
-        
-        #mitjanaReal[0:5] = [0]
-        #print(mitjanaReal)
-        llista_cnt = []
-        iteracions = 0
-        ite = len(llistaCentreMases)
-        
-        if len(llistaCentreMases) > 0:    
-            #for k in range(len(llistaCentreMases)):
-            mitjanaReal = [0 for i in range (len(llistaCentreMases))]
-            for cnt in contours_rest:
-                x_sum = 0
-                y_sum = 0
-                z_sum = 0
-
-                contador = 0
-                area_rest = cv2.contourArea(cnt)
-                
-                
-                if area_rest > 200:
-                    
-                    
-                    #for y in range(0,171):
-                    #    for x in range(0,223):
-                            
-                    #        dist = cv2.pointPolygonTest(cnt, (y,x), True)
-                    #        if dist >= 0:
-                    #            x_sum += im_xyz[y,x, 1] 
-                    #            y_sum += im_xyz[y,x, 2] 
-                    #            z_sum += im_xyz[y,x, 0] 
-                    #            contador += 1
-
-           
-                    for cont in cnt:
-                        x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
-                        y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
-                        z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
-                        
-                        contador += 1
-                    
-                    if contador != 0:
-                        #print(k)
-                        RealPointX = x_sum/contador
-                        RealPointY = y_sum/contador
-                        RealPointZ = z_sum/contador
-
-                        mitjanaReal[iteracions] = RealPointX, RealPointY, RealPointZ         
-                    
-                    iteracions += 1
-
-
-        #if len(llistaCentreMases) > 0:    
-        #    print(mitjanaReal)            
-        #print("AAAALOOOOOOOOOOOOOOOOOOOOOOOOO")
         if flag == 2:
             ret, jpeg = cv2.imencode('.jpg',amplitut_color)
         elif flag == 3:
@@ -843,6 +728,130 @@ def carreguemValorsXML():
         maxConvexityValue = p.find('maxConvexity').text
         minInertiaRatioValue = p.find('minInertiaRatio').text
         maxInertiaRatioValue = p.find('maxInertiaRatio').text
+
+
+def calcularInfoResta(resta, amplitut_color, detector):
+
+    global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
+
+    matriu_blanc = np.zeros((172,224), np.uint8)
+    resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
+    img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
+    keypoints = detector.detect(img_grey)
+    _, binary = cv2.threshold(img_grey, 100,255, cv2.THRESH_BINARY)
+    contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
+
+    llistaCentreMases = []
+    if len(keypoints) > 0:
+        
+        for k in range(len(keypoints)):
+            print(len(keypoints))
+            llista = []
+            
+            x = keypoints[k].pt[0]
+            y = keypoints[k].pt[1]
+            
+            cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
+            
+            for cnt in contours:
+                
+                area = cv2.contourArea(cnt)
+                
+                if area > 200 and area < 1500:   
+                    
+                    M = cv2.moments(cnt)
+                    
+                    if M['m00'] != 0:
+                        
+                        #centroid
+                        X = M['m10'] / M['m00']
+                        Y = M['m01'] / M['m00']
+                        
+                        if [X,Y] not in llistaCentreMases:
+                            
+                            llistaCentreMases.append([X,Y])
+                            
+                    
+                    if M['mu20']-M['mu02'] != 0:
+                        
+                        grados_flagg = True
+                        
+                        theta = 0.5 * np.arctan (2 * M['mu11']/((M['mu20']-M['mu02'])))
+                        grados = (theta / math.pi) * 180
+                        
+                        llista.append(grados)
+
+            llista_bool = True
+
+    #print(llistaCentreMases)      
+    keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+
+
+def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz):
+    
+    matriu_blanc = np.zeros((172,224), np.uint8)
+    resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
+    img_grey_rest = cv2.cvtColor(resta_altura, cv2.COLOR_BGR2GRAY)
+    keypoints_rest = detector.detect(img_grey_rest)
+    _, binary_rest = cv2.threshold(img_grey_rest, 100,255, cv2.THRESH_BINARY)
+    contours_rest, _ = cv2.findContours(binary_rest, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    img_contorns_rest = cv2.drawContours(matriu_blanc, contours_rest, -1 ,(255,0,0), 1)
+        
+
+    llista_cnt = []
+    iteracions = 0
+    ite = len(llistaCentreMases)
+    
+    if ite > 0:    
+        #for k in range(len(llistaCentreMases)):
+        mitjanaReal = [0 for i in range (ite)]
+            #mitjanaReal = [0,0,0,0]
+            
+            
+        for cnt in contours_rest:
+            x_sum = 0
+            y_sum = 0
+            z_sum = 0
+
+            contador = 0
+            area_rest = cv2.contourArea(cnt)
+            
+            
+            if area_rest > 200:
+                
+                
+                for y in range(0,171):
+                    for x in range(0,223):
+                        
+                        dist = cv2.pointPolygonTest(cnt, (y,x), True)
+                        if dist >= 0:
+                            x_sum += im_xyz[y,x, 1] 
+                            y_sum += im_xyz[y,x, 2] 
+                            z_sum += im_xyz[y,x, 0] 
+                            contador += 1
+
+        
+                #for cont in cnt:
+                #    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
+                #    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
+                #    z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
+                    
+                #    contador += 1
+                
+                if contador != 0:
+                    #print(k)
+                    RealPointX = x_sum/contador
+                    RealPointY = y_sum/contador
+                    RealPointZ = z_sum/contador
+
+                    mitjanaReal[iteracions] = RealPointX, RealPointY, RealPointZ         
+                
+        iteracions += 1
+
+    if len(llistaCentreMases) > 0:
+        print(mitjanaReal)
 
 
 if __name__ == '__main__':
