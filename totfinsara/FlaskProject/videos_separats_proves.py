@@ -17,18 +17,15 @@ import scipy.misc
 from PIL import Image
 import PIL
 
-print("HOLAAA")
 
 global maxArea, minArea, blobColor, minDistBetweenBlobs, minThreshold, maxThreshold, thresholdStep, minRepeatability, minCircularity, maxCircularity, minConvexity, maxConvexity, minInertiaRatio, maxInertiaRatio
 global miarea, maarea, flaggflagg
 flaggflagg = False
 global frame_inici, frame_inici_amplitut, frame_inici2, frame_inici_amplitut2
-global maxAreaValue, minAreaValue, blobColorValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
+global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
 
 global param_flagg
 param_flagg = False
-
-
 
 global llista
 llista = []
@@ -74,7 +71,6 @@ def index():
 
 def function(flag, cam):
     
-    
     global llista, llista_bool
     global static_frame_flagg
     global frame_inici, frame_inici_amplitut, frame_inici2, frame_inici_amplitut2
@@ -83,76 +79,49 @@ def function(flag, cam):
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
     global frame_valid
     
-
     grados_flagg = False
-
     done = False
     reload = False
-
     contador = 0
     llista = []
     
-    
+    ##-- Agafem la informació del background que tenim --##
+    ##------- actualment(ho indica frame_flagg) ---------##
+
     if frame_flagg == 0:
         background_static(1,0)
 
     if frame_flagg2 == 0:
         background_static2(1,0)
 
+
+    ##-----Funcio que llegeix els parametres del XML-----##
     
-    file_name = 'templates/arxiu.xml'
-    dom = ElementTree.parse(file_name)
-    parametres = dom.findall('Parametres')
-    root = dom.getroot()
+    carreguemValorsXML()
     
-    for p in parametres:
-        
-        minAreaValue = p.find('minArea').text
-        maxAreaValue = p.find('maxArea').text
-        colorBlobValue = p.find('colorBlob').text
-        minDistBetweenBlobsValue = p.find('minDistBetweenBlobs').text
-        minThresholdValue = p.find('minThreshold').text
-        maxThresholdValue = p.find('maxThreshold').text
-        thresholdStepValue = p.find('thresholdStep').text
-        minRepeatabilityValue = p.find('minRepeatability').text
-        minCircularityValue = p.find('minCircularity').text
-        maxCircularityValue = p.find('maxCircularity').text
-        minConvexityValue = p.find('minConvexity').text
-        maxConvexityValue = p.find('maxConvexity').text
-        minInertiaRatioValue = p.find('minInertiaRatio').text
-        maxInertiaRatioValue = p.find('maxInertiaRatio').text
-        
-    #for minarea in root.iter("minArea"):
-    #    minarea.text= "33333"
-    #with open(file_name, "wb") as fileupdate:
-    #    dom.write(fileupdate)
+
+    ##---------Assignem el valors llegits al XML---------##        
     
     fg = ifm3dpy.FrameGrabber(cam, ifm3dpy.IMG_AMP | ifm3dpy.IMG_RDIS | ifm3dpy.IMG_CART)
     im = ifm3dpy.ImageBuffer()
 
     params = cv2.SimpleBlobDetector_Params()
 
-
     params.filterByArea = True    # default: True
     params.minArea = int(minAreaValue)          # default: 50
     params.maxArea = int(maxAreaValue)        # default: 5000
-
 
     params.filterByCircularity = False      # default: False
     params.minCircularity = float(minCircularityValue)  # default: 0.8
     params.maxCircularity = float(maxCircularityValue)  # default: inf   
 
-
     params.filterByConvexity = False       # default: True
     params.minConvexity = float(minConvexityValue)               # default: 0.95
     params.maxConvexity = float(maxConvexityValue)                 # default: Inf
 
-
     params.filterByInertia = False        # default: True
     params.minInertiaRatio = float(minInertiaRatioValue)              # default: 0.1
     params.maxInertiaRatio = float(maxInertiaRatioValue)           # default: Inf
-
-
 
     params.minRepeatability = 1           # default: 2
 
@@ -166,19 +135,23 @@ def function(flag, cam):
     params.filterByColor = False            # default: True
     params.blobColor = int(colorBlobValue)                    # default: 0
 
-    #print(params.minArea, params.maxArea, params.blobColor)
+    
+    ##-------------Creem blob detector amb------------ ##
+    ##----------- els valors dels parametres-----------## 
+
     detector = cv2.SimpleBlobDetector_create(parameters=params)
 
-
     img_blanca = 255 * np.ones((172,224,3), dtype=np.uint8)
-    
     
     llista = []
     
     while not done:
+
+    ##-------- Ens mantenim constantment observant -------##
+    ##------- si canviem el valor d'algun parametre ------##
+
         if param_flagg == True:
             
-            #if minArea in globals():
             if minArea != False:
                 params.minArea = int(minArea)
                 #print ("minArea:",minArea)
@@ -231,7 +204,8 @@ def function(flag, cam):
 
         key = cv2.waitKey(1)
 
-        
+    ##----- Si hem canviat el valor d'algun parametre ----##
+    ##------ actualitzem el codi amb els nous valors -----##
 
         if reload == True: # reload parameters
             del detector
@@ -240,20 +214,20 @@ def function(flag, cam):
             reload = False
         
         
+        ##-------- Capturem els frames i guardem --------##
+        ##-----els tipus d'iformacio que necessitem -----##
         
-        # Capture a frame and save references to the components
-        #fg = ifm3dpy.FrameGrabber(ifm3dpy.Camera(), ifm3dpy.IMG_AMP | ifm3dpy.IMG_RDIS | ifm3dpy.IMG_CART)
-        #im = ifm3dpy.ImageBuffer()
         fg.wait_for_frame(im)
+
+        ##-------- Frame Pixel/Distancia --------##
         im_rdis = im.distance_image()
+        ##--------- Frame Pixel/Amplitut --------##
         im_amp = im.amplitude_image()
-        #im_conf = im.confidence_image()
+        ##--------- Frame Pixel/Posicio XYZ --------##
         im_xyz = im.xyz_image()
         
+  
         
-        #im_rdis.dump('matriu2.dat')
-        #scipy.misc.imsave('iiiiiiiiiiii.png', im_amp)
-    
     
         amplitut_color = cv2.applyColorMap(im_amp.astype(np.uint8), cv2.COLORMAP_BONE)
 
@@ -261,14 +235,8 @@ def function(flag, cam):
         resta2 = frame_inici2 - im_rdis
 
         resta_altura =  frame_inici - im_rdis
-        #resta_altura = cv2.GaussianBlur(resta_altura,(7,7),0)
-        #resta_altura = cv2.medianBlur(resta_altura, 3)
-        #kernel = np.ones((5,5), np.float32)/25
-        #resta_altura = cv2.filter2D(resta_altura, -1, kernel)
-        #resta_altura = cv2.bilateralFilter(resta_altura, 1, 75, 75)
-        #resta_altura = cv2.blur(resta_altura, ( 1,1 ))
 
-        
+
         acum1 = 0
         acum2 = 0
         
@@ -280,14 +248,17 @@ def function(flag, cam):
 
         
         
-        #escolleix dinàmicament quin background utilitzem
+    ##-----Escollim dinàmicament en cada iteracio-------##
+    ##--Si ens quedem amb el background1 o background2--##
         
-        #background2 valid
+        ##--Background2 valid--##
+        
         if abs(acum1) > abs(acum2):
             frame_valid = 1
             resta = resta2
         
-        #background1 valid
+        ##--Background1 valid--##
+
         else:
             frame_valid = 2
 
@@ -837,6 +808,41 @@ def guardarFrame2():
     background_static2(1,0)
     return render_template("/frame.html")
 
+
+
+##---------------FUNCIONS NO FLASK-------------------##
+##---------------FUNCIONS NO FLASK-------------------##
+##---------------FUNCIONS NO FLASK-------------------##
+##---------------FUNCIONS NO FLASK-------------------##
+##---------------FUNCIONS NO FLASK-------------------##
+
+
+def carreguemValorsXML():
+
+    global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
+
+
+    file_name = 'templates/arxiu.xml'
+    dom = ElementTree.parse(file_name)
+    parametres = dom.findall('Parametres')
+    root = dom.getroot()
+    
+    for p in parametres:
+        
+        minAreaValue = p.find('minArea').text
+        maxAreaValue = p.find('maxArea').text
+        colorBlobValue = p.find('colorBlob').text
+        minDistBetweenBlobsValue = p.find('minDistBetweenBlobs').text
+        minThresholdValue = p.find('minThreshold').text
+        maxThresholdValue = p.find('maxThreshold').text
+        thresholdStepValue = p.find('thresholdStep').text
+        minRepeatabilityValue = p.find('minRepeatability').text
+        minCircularityValue = p.find('minCircularity').text
+        maxCircularityValue = p.find('maxCircularity').text
+        minConvexityValue = p.find('minConvexity').text
+        maxConvexityValue = p.find('maxConvexity').text
+        minInertiaRatioValue = p.find('minInertiaRatio').text
+        maxInertiaRatioValue = p.find('maxInertiaRatio').text
 
 
 if __name__ == '__main__':
