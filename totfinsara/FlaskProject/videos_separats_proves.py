@@ -17,7 +17,7 @@ import scipy.misc
 from PIL import Image
 import PIL
 
-
+print("HOLAAA")
 
 global maxArea, minArea, blobColor, minDistBetweenBlobs, minThreshold, maxThreshold, thresholdStep, minRepeatability, minCircularity, maxCircularity, minConvexity, maxConvexity, minInertiaRatio, maxInertiaRatio
 global miarea, maarea, flaggflagg
