@@ -746,7 +746,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
     if len(keypoints) > 0:
         
         for k in range(len(keypoints)):
-            print(len(keypoints))
+            #print(len(keypoints))
             llista = []
             
             x = keypoints[k].pt[0]
@@ -758,7 +758,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
                 
                 area = cv2.contourArea(cnt)
                 
-                if area > 200 and area < 1500:   
+                if area > 200 and area < 1200:   
                     
                     M = cv2.moments(cnt)
                     
@@ -799,7 +799,7 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
     contours_rest, _ = cv2.findContours(binary_rest, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     img_contorns_rest = cv2.drawContours(matriu_blanc, contours_rest, -1 ,(255,0,0), 1)
         
-
+  
     llista_cnt = []
     iteracions = 0
     ite = len(llistaCentreMases)
@@ -807,9 +807,7 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
     if ite > 0:    
         #for k in range(len(llistaCentreMases)):
         mitjanaReal = [0 for i in range (ite)]
-            #mitjanaReal = [0,0,0,0]
-            
-            
+        #mitjanaReal =[0,0,0,0,0]   
         for cnt in contours_rest:
             x_sum = 0
             y_sum = 0
@@ -819,26 +817,26 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
             area_rest = cv2.contourArea(cnt)
             
             
-            if area_rest > 200:
+            if area_rest > 200 and area_rest < 1200:
+            
                 
-                
-                for y in range(0,171):
-                    for x in range(0,223):
+                #for y in range(0,171):
+                #    for x in range(0,223):
                         
-                        dist = cv2.pointPolygonTest(cnt, (y,x), True)
-                        if dist >= 0:
-                            x_sum += im_xyz[y,x, 1] 
-                            y_sum += im_xyz[y,x, 2] 
-                            z_sum += im_xyz[y,x, 0] 
-                            contador += 1
+                #        dist = cv2.pointPolygonTest(cnt, (y,x), True)
+                #        if dist >= 0:
+                #            x_sum += im_xyz[y,x, 1] 
+                #            y_sum += im_xyz[y,x, 2] 
+                #            z_sum += im_xyz[y,x, 0] 
+                #            contador += 1
 
         
-                #for cont in cnt:
-                #    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
-                #    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
-                #    z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
+                for cont in cnt:
+                    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
+                    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
+                    z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
                     
-                #    contador += 1
+                    contador += 1
                 
                 if contador != 0:
                     #print(k)
@@ -847,8 +845,8 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
                     RealPointZ = z_sum/contador
 
                     mitjanaReal[iteracions] = RealPointX, RealPointY, RealPointZ         
-                
-        iteracions += 1
+                    #print(iteracions)
+                    iteracions += 1
 
     if len(llistaCentreMases) > 0:
         print(mitjanaReal)
