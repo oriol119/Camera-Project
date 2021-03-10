@@ -47,6 +47,9 @@ global mostra, mostra2
 
 global frame_valid
 
+global headings
+headings = ("ID","Angle","POS: X","POS: Y", "POS: Z")
+
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
 #object_classifier = cv2.CascadeClassifier("models/fullbody_recognition_model.xml") # an opencv classifier
@@ -259,7 +262,7 @@ def function(flag, cam):
                 else:
                     resta_altura[i][j]= 100
 
-        
+
         
     ##-----Escollim dinàmicament en cada iteracio-------##
     ##--Si ens quedem amb el background1 o background2--##
@@ -280,7 +283,6 @@ def function(flag, cam):
         calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz)
 
         
-
         if flag == 2:
             ret, jpeg = cv2.imencode('.jpg',amplitut_color)
         elif flag == 3:
@@ -298,10 +300,15 @@ def function(flag, cam):
             
         
         if jpeg is not None:
+
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
+            
+
         else:
             print("frame is none")
+        
+
 
 @app.route('/2')
 def video2():
@@ -366,12 +373,14 @@ def params():
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
     
     global param_flagg, flaggflagg
-    
+    function(7,ifm3dpy.Camera())
+
     
     if request.method == "POST":
+        
+
         #flag_lectura = False
         flaggflagg = True
-        print("ALOOOO")
         minArea = request.form["minArea"]
         maxArea = request.form["maxArea"]
         blobColor = request.form["blobColor"]
@@ -435,18 +444,15 @@ def params():
     else:
 
         #if flaggflagg == True:
-            
-        return render_template("parametres.html", minAreaR = minAreaValue, maxAreaR = maxAreaValue, colorBlobR = colorBlobValue, minDistR = minDistBetweenBlobsValue, minThresholdR = minThresholdValue, maxThresholdR = maxThresholdValue, thresholdStepR = thresholdStepValue, minRepeatabilityR = minRepeatabilityValue, minCircularityR = minCircularityValue, maxCircularityR = maxCircularityValue, minConvexityR = minConvexityValue, maxConvexityR = maxConvexityValue, minInertiaRatioR = minInertiaRatioValue, maxInertiaRatioR = maxInertiaRatioValue)
-        
+        return render_template("parametres.html",  minAreaR = minAreaValue, maxAreaR = maxAreaValue, colorBlobR = colorBlobValue, minDistR = minDistBetweenBlobsValue, minThresholdR = minThresholdValue, maxThresholdR = maxThresholdValue, thresholdStepR = thresholdStepValue, minRepeatabilityR = minRepeatabilityValue, minCircularityR = minCircularityValue, maxCircularityR = maxCircularityValue, minConvexityR = minConvexityValue, maxConvexityR = maxConvexityValue, minInertiaRatioR = minInertiaRatioValue, maxInertiaRatioR = maxInertiaRatioValue)
+
 
 
 
 @app.route("/angles", methods=["POST", "GET"])
-
 def angles():
-    global llista_bool
-    global llista
-    return render_template("angles.html", llista_bool = llista_bool, llista = llista)
+    global llista_bool, llista, headings
+    return render_template("angles.html", llista_bool = llista_bool, llista_definitiva = llista_definitiva, headings = headings)
 
 
 @app.route("/frame", methods=["POST", "GET"])
@@ -733,7 +739,7 @@ def carreguemValorsXML():
 def calcularInfoResta(resta, amplitut_color, detector):
 
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
-
+    global llista_bool, llista, llista_definitiva
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
@@ -743,11 +749,13 @@ def calcularInfoResta(resta, amplitut_color, detector):
     img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
 
     llistaCentreMases = []
+    llista_definitiva = [0,0,0,0,0,0]
     if len(keypoints) > 0:
         
         for k in range(len(keypoints)):
             #print(len(keypoints))
             llista = []
+            sumatori = 0
             
             x = keypoints[k].pt[0]
             y = keypoints[k].pt[1]
@@ -780,9 +788,16 @@ def calcularInfoResta(resta, amplitut_color, detector):
                         theta = 0.5 * np.arctan (2 * M['mu11']/((M['mu20']-M['mu02'])))
                         grados = (theta / math.pi) * 180
                         
+                        llista.append(sumatori + 1)
                         llista.append(grados)
+                        
+                        llista_definitiva[sumatori] = [sumatori, grados] 
+                        llista_bool = True
+                        sumatori += 1
+            #print(llista)
+            
 
-            llista_bool = True
+
 
     #print(llistaCentreMases)      
     keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -791,6 +806,8 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
 def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz):
     
+    global llista_definitiva
+
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey_rest = cv2.cvtColor(resta_altura, cv2.COLOR_BGR2GRAY)
@@ -846,10 +863,16 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
 
                     mitjanaReal[iteracions] = RealPointX, RealPointY, RealPointZ         
                     #print(iteracions)
-                    iteracions += 1
+                    llista_definitiva[iteracions].append(RealPointX)
+                    llista_definitiva[iteracions].append(RealPointY)
+                    llista_definitiva[iteracions].append(RealPointZ)
 
-    if len(llistaCentreMases) > 0:
-        print(mitjanaReal)
+                    iteracions += 1
+                    print(llista_definitiva[0])
+                    print(llista_definitiva[0][0])
+
+    #if len(llistaCentreMases) > 0:
+    #    print(mitjanaReal)
 
 
 if __name__ == '__main__':

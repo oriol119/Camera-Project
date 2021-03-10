@@ -82,5 +82,11 @@ li a:hover:not(.active) {
     width: 20%;
     height: 5%;
     z-index: 3;
+}
 
+#taula {
+    position: absolute;
+    top: 50%;
+    left: 40%;
+    width: 40%;
 }

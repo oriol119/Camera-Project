@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
+  <head >
 
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/parametres.css')}}" >
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
 
     <title>OpenCV</title>
     <meta charset="utf-8">
@@ -11,13 +12,12 @@
   </head>
 
 
-  <body onload="click()" style="height: 1300px;">
-    
+  <body  style="height: 1300px;">
 
-    <ul>
+    <ul onload="click()">
       <li><a href="/frame">Primer Frame </a></li>
       <li><a href="/">Videos en directe</a></li>
-      <li><a class="active" href="/parametres"> Parametrització</a></li>
+      <li><a id = pr class="active" href="/parametres"> Parametrització</a></li>
       <li><a href="/angles">Objectes i Angles </a></li>
 
     </ul>
@@ -113,12 +113,10 @@
 
     </form>
     
-    
-
     <img id="kp_video" src="{{ url_for('video7') }}">
     
 
-    
+
     <button id="paramsDefecte" onclick="ParamsDefecte()"> Parametres Per Defecte </button>
     <button id="netejar" onclick="Clean()"> Netejar Parametres </button>
     <!-- <button onclick="Save()"> Guardar parametres </button>
@@ -222,10 +220,15 @@
         } 
         fr.readAsText(this.files[0]);   
       }) 
-
-      
-
     </script> 
+    <script>
+      function click(){
+        alert("HERESTUFF");
+        var e = document.getElementById("pr");
+        e.click();
+
+      }
+    </script>
 
   </body>
   <footer id=footer> 

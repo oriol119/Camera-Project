@@ -2,13 +2,11 @@
 <html lang="es">
   <head>
 
-
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/videos_openCV.css')}}" >
-
     <title>OpenCV</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
     
   </head>
 
@@ -82,6 +80,10 @@
     <img id="sta_video" src="{{ url_for('video2') }}">
     
     {% endif %}
+
+    <form >
+      <input id = pantalla_completa type="submit"/> 
+    </form>
     
   </body>
 </html>
