@@ -48,7 +48,7 @@ global mostra, mostra2
 global frame_valid
 
 global headings
-headings = ("ID","Angle","POS: X","POS: Y", "POS: Z")
+headings = ("ID","Angle","POS X","POS Y","POS Z")
 
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
@@ -82,7 +82,6 @@ def function(flag, cam):
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
     global frame_valid
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
-
 
     
     grados_flagg = False
@@ -787,13 +786,18 @@ def calcularInfoResta(resta, amplitut_color, detector):
                         
                         theta = 0.5 * np.arctan (2 * M['mu11']/((M['mu20']-M['mu02'])))
                         grados = (theta / math.pi) * 180
-                        
+                        grados = round(grados, 2)
+                        if grados < 0:
+                            grados = 45 + (45 - abs(grados))
+                        print(grados)
+
                         llista.append(sumatori + 1)
                         llista.append(grados)
                         
                         llista_definitiva[sumatori] = [sumatori, grados] 
                         llista_bool = True
                         sumatori += 1
+
             #print(llista)
             
 
@@ -837,42 +841,44 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
             if area_rest > 200 and area_rest < 1200:
             
                 
-                #for y in range(0,171):
-                #    for x in range(0,223):
+                for y in range(0,171):
+                    for x in range(0,223):
                         
-                #        dist = cv2.pointPolygonTest(cnt, (y,x), True)
-                #        if dist >= 0:
-                #            x_sum += im_xyz[y,x, 1] 
-                #            y_sum += im_xyz[y,x, 2] 
-                #            z_sum += im_xyz[y,x, 0] 
-                #            contador += 1
+                        dist = cv2.pointPolygonTest(cnt, (x,y), True)
+                        if dist >= 0:
+                            x_sum += im_xyz[y,x, 1] 
+                            y_sum += im_xyz[y,x, 2] 
+                            z_sum += im_xyz[y,x, 0] 
+                            contador += 1
 
         
-                for cont in cnt:
-                    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
-                    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
-                    z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
+                #for cont in cnt:
+                #    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
+                #    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
+                #    z_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 0] 
                     
-                    contador += 1
+                #    contador += 1
                 
                 if contador != 0:
-                    #print(k)
-                    RealPointX = x_sum/contador
-                    RealPointY = y_sum/contador
-                    RealPointZ = z_sum/contador
+                    
+                    RealPointX = round(x_sum/contador, 4)
+                    RealPointY = round(y_sum/contador, 4)
+                    RealPointZ = round(z_sum/contador, 4)
+
+                    #print(RealPointX, RealPointY, RealPointZ)
 
                     mitjanaReal[iteracions] = RealPointX, RealPointY, RealPointZ         
-                    #print(iteracions)
+                   
                     llista_definitiva[iteracions].append(RealPointX)
                     llista_definitiva[iteracions].append(RealPointY)
                     llista_definitiva[iteracions].append(RealPointZ)
 
                     iteracions += 1
-                    print(llista_definitiva[0])
-                    print(llista_definitiva[0][0])
+                    
+
 
     #if len(llistaCentreMases) > 0:
-    #    print(mitjanaReal)
+    #    print(llista_definitiva)
 
 
 if __name__ == '__main__':

@@ -86,7 +86,19 @@ li a:hover:not(.active) {
 
 #taula {
     position: absolute;
-    top: 50%;
-    left: 40%;
+    top: 20%;
+    left: 35%;
     width: 40%;
+    
 }
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+
+.taula_font {
+    font-size: 30px;
+    padding-right: 30px;
+}
+

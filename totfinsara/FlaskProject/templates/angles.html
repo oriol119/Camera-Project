@@ -26,10 +26,9 @@
 
 
     <h1 id="titol_video_kp">Viedo Keypoints</h1>
-    <h1 id="titol_llista">LLista Objectes i Angles</h1>
     <img id="kp_video" src="{{ url_for('video7') }}">
 
-    <form action="#" method="post">
+    <form action="/angles" >
       <!--
       {% if llista_bool == True %}
       {% if llista|length > 0 %}
@@ -49,21 +48,21 @@
       -->
       {% if llista_bool == True %}
       
-      <p><input id=imprimir_llista type="submit" name="IMPRIMIR LLISTA"/> </p>
+      <p><input id="imprimir_llista" type="submit"/> </p>
 
-      
-      <table id=taula>
+      <table id="taula">
         <tr>
         {% for header in headings %}
-          <th>{{header}}</th>
+          <th ><a class="taula_font">{{header}}</a></th>
         {% endfor %}
         </tr>
         
         {% for row in llista_definitiva %}
         <tr>
-          {% for i in range(row) %}
-          <td>{{i}}</td>
+          {%for i in 0,1,2,3,4 %}
+          <td><a class="taula_font">{{row[i]}}</a></td>
           {% endfor %}
+          
         </tr>
         {% endfor %}
   
