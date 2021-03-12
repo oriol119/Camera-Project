@@ -19,10 +19,10 @@
       <li><a href="/">Videos en directe</a></li>
       <li><a href="/parametres"> Parametrització</a></li>
       <li><a class="active" href="/angles">Objectes i Angles </a></li>
-      
+      <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
     </ul>
 
-    <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+    
 
 
     <h1 id="titol_video_kp">Viedo Keypoints</h1>
@@ -46,10 +46,12 @@
       </span> 
       {% endif %}  
       -->
-      {% if llista_bool == True %}
+      
       
       <p><input id="imprimir_llista" type="submit"/> </p>
-
+      
+      
+      {% if llista_bool == True %}
       <table id="taula">
         <tr>
         {% for header in headings %}
@@ -67,7 +69,30 @@
         {% endfor %}
   
       </table>
+      
+
+      
+      
+      <table id="taula2">
+        
+        <tr>
+        {% for header2 in headings2 %}
+          <th ><a class="taula_font">{{header2}}</a></th>
+        {% endfor %}
+        </tr>
+
+        {% for row2 in llista_definitiva2 %}
+        <tr>
+          {% for k in 0,1,2,3,4,5 %}
+          <td><a class="taula_font">{{row2[k]}}</a></td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        
+
+      </table>
       {% endif %}
+
     </form> 
 
   </body>

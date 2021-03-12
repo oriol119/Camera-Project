@@ -47,8 +47,9 @@ global mostra, mostra2
 
 global frame_valid
 
-global headings
+global headings, headings2
 headings = ("ID","Angle","POS X","POS Y","POS Z")
+headings2 = ("ID", "LEFT", "RIGHT", "TOP", "BOTTOM", "HEIGHT")
 
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
@@ -450,17 +451,15 @@ def params():
 
 @app.route("/angles", methods=["POST", "GET"])
 def angles():
-    global llista_bool, llista, headings
-    return render_template("angles.html", llista_bool = llista_bool, llista_definitiva = llista_definitiva, headings = headings)
+    global llista_bool
+
+    return render_template("angles.html", llista_bool = llista_bool, llista_definitiva = llista_definitiva, headings = headings, headings2 = headings2, llista_definitiva2 = llista_definitiva2)
 
 
 @app.route("/frame", methods=["POST", "GET"])
 def staticFrame():
-    
     global frame_flagg, frame_flagg2
     global frame_valid
-
-
 
     return render_template("frame.html", frame_valid = frame_valid)
 
@@ -738,7 +737,7 @@ def carreguemValorsXML():
 def calcularInfoResta(resta, amplitut_color, detector):
 
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
-    global llista_bool, llista, llista_definitiva
+    global llista_bool, llista_definitiva, llista_definitiva2
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
@@ -749,11 +748,14 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
     llistaCentreMases = []
     llista_definitiva = [0,0,0,0,0,0]
+    llista_definitiva2 = [0,0,0,0,0,0]
+
     if len(keypoints) > 0:
         
         for k in range(len(keypoints)):
             #print(len(keypoints))
             llista = []
+            llista2 = []
             sumatori = 0
             
             x = keypoints[k].pt[0]
@@ -787,14 +789,14 @@ def calcularInfoResta(resta, amplitut_color, detector):
                         theta = 0.5 * np.arctan (2 * M['mu11']/((M['mu20']-M['mu02'])))
                         grados = (theta / math.pi) * 180
                         grados = round(grados, 2)
+                        
                         if grados < 0:
                             grados = 45 + (45 - abs(grados))
-                        print(grados)
-
-                        llista.append(sumatori + 1)
-                        llista.append(grados)
                         
-                        llista_definitiva[sumatori] = [sumatori, grados] 
+                        
+                        llista_definitiva[sumatori] = [sumatori, grados]
+                        llista_definitiva2[sumatori] = [sumatori] 
+
                         llista_bool = True
                         sumatori += 1
 
@@ -810,7 +812,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
 def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz):
     
-    global llista_definitiva
+    global llista_definitiva ,llista_definitiva2
 
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
@@ -840,18 +842,37 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
             
             if area_rest > 200 and area_rest < 1200:
             
-                
+                max_left = -10
+                max_right = 10
+                max_top = -10
+                max_bottom = 10
+                max_height = 10
+
                 for y in range(0,171):
                     for x in range(0,223):
                         
                         dist = cv2.pointPolygonTest(cnt, (x,y), True)
                         if dist >= 0:
+                            if im_xyz[y,x,1] > max_left:
+                                max_left = im_xyz[y,x,1]
+                            if im_xyz[y,x,1] < max_right:
+                                max_right = im_xyz[y,x,1]
+                            
+                            if im_xyz[y,x,2] > max_top:
+                                max_top = im_xyz[y,x,2]
+                            if im_xyz[y,x,2] < max_bottom:
+                                max_bottom = im_xyz[y,x,2]
+                            
+                            if im_xyz[y,x,0] < max_height:    
+                                max_height = im_xyz[y,x,0]
+                            
                             x_sum += im_xyz[y,x, 1] 
                             y_sum += im_xyz[y,x, 2] 
                             z_sum += im_xyz[y,x, 0] 
+
                             contador += 1
 
-        
+
                 #for cont in cnt:
                 #    x_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 1] 
                 #    y_sum += im_xyz[cnt[contador][0][1],cnt[contador][0][0], 2] 
@@ -872,6 +893,12 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
                     llista_definitiva[iteracions].append(RealPointX)
                     llista_definitiva[iteracions].append(RealPointY)
                     llista_definitiva[iteracions].append(RealPointZ)
+
+                    llista_definitiva2[iteracions].append(max_left)
+                    llista_definitiva2[iteracions].append(max_right)
+                    llista_definitiva2[iteracions].append(max_top)
+                    llista_definitiva2[iteracions].append(max_bottom)
+                    llista_definitiva2[iteracions].append(max_height)
 
                     iteracions += 1
                     
