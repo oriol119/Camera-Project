@@ -27,10 +27,8 @@ global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, min
 global param_flagg
 param_flagg = False
 
-global llista
+global llista, llista_bool
 llista = []
-
-global llista_bool
 llista_bool = False
 
 global static_frame_flagg
@@ -49,7 +47,7 @@ global frame_valid
 
 global headings, headings2
 headings = ("ID","Angle","POS X","POS Y","POS Z")
-headings2 = ("ID", "LEFT", "RIGHT", "TOP", "BOTTOM", "HEIGHT")
+headings2 = ("ID", "RIGHT","LEFT", "BOTTOM", "TOP", "HEIGHT")
 
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
@@ -65,21 +63,19 @@ app = Flask(__name__)
 #basic_auth = BasicAuth(app)
 last_epoch = 0
 
-
 @app.route('/')
 #@basic_auth.required
 
 def index():
     return render_template('videos_openCV.html')
   
-
+  
 def function(flag, cam):
     
     global llista, llista_bool
-    global static_frame_flagg
+    global static_frame_flagg, flaggflagg
     global frame_inici, frame_inici_amplitut, frame_inici2, frame_inici_amplitut2
     global miarea, maarea
-    global flaggflagg
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
     global frame_valid
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
@@ -232,9 +228,7 @@ def function(flag, cam):
         ##--------- Frame Pixel/Posicio XYZ --------##
         im_xyz = im.xyz_image()
         
-  
-        
-    
+
         amplitut_color = cv2.applyColorMap(im_amp.astype(np.uint8), cv2.COLORMAP_BONE)
 
         resta = frame_inici - im_rdis
@@ -252,12 +246,12 @@ def function(flag, cam):
                 acum1 += resta[i][j]
                 acum2 += resta2[i][j]
 
-                if resta[i][j] > 0.01:
+                if resta[i][j] > 0.025:
                     resta[i][j]= 0    #blanc
                 else:
                     resta[i][j]= 100  #negre
 
-                if resta_altura[i][j] > 0.01:
+                if resta_altura[i][j] > 0.025:
                     resta_altura[i][j]= 0   #blanc
                 else:
                     resta_altura[i][j]= 100
@@ -282,7 +276,7 @@ def function(flag, cam):
         calcularInfoResta(resta, amplitut_color, detector)
         calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz)
 
-        
+        amplitut_color[86, 112] = [0, 0, 255]
         if flag == 2:
             ret, jpeg = cv2.imencode('.jpg',amplitut_color)
         elif flag == 3:
@@ -308,6 +302,7 @@ def function(flag, cam):
         else:
             print("frame is none")
         
+
 
 
 @app.route('/2')
@@ -458,12 +453,10 @@ def angles():
 
 @app.route("/frame", methods=["POST", "GET"])
 def staticFrame():
-    global frame_flagg, frame_flagg2
-    global frame_valid
+    global frame_flagg, frame_flagg2, frame_valid
 
     return render_template("frame.html", frame_valid = frame_valid)
 
-    
 
 @app.route('/20')
 def background1():
@@ -799,11 +792,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
                         llista_bool = True
                         sumatori += 1
-
-            #print(llista)
-            
-
-
+  
 
     #print(llistaCentreMases)      
     keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -821,7 +810,6 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
     _, binary_rest = cv2.threshold(img_grey_rest, 100,255, cv2.THRESH_BINARY)
     contours_rest, _ = cv2.findContours(binary_rest, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     img_contorns_rest = cv2.drawContours(matriu_blanc, contours_rest, -1 ,(255,0,0), 1)
-        
   
     llista_cnt = []
     iteracions = 0
@@ -838,7 +826,6 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
 
             contador = 0
             area_rest = cv2.contourArea(cnt)
-            
             
             if area_rest > 200 and area_rest < 1200:
             
@@ -902,14 +889,9 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
 
                     iteracions += 1
                     
-
-
     #if len(llistaCentreMases) > 0:
     #    print(llista_definitiva)
 
 
 if __name__ == '__main__':
     app.run(host='192.168.0.80', debug=True, threaded=True)
-
-    
-
