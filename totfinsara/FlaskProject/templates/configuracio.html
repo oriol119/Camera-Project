@@ -2,14 +2,14 @@
 <html lang="es">
   <head>
 
-    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/frame.css')}}" >
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/configuracio.css')}}" >
     <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
-
+    <script src="{{url_for('static', filename='scripts/readURL.js')}}" > </script>
+    
+    
     <title>OpenCV</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    
     
   </head>
 
@@ -17,7 +17,7 @@
   <body id=body>
     
     <ul>
-      <li><a class="active" href="/frame">Frame Estatic </a></li>
+      <li><a class="active" href="/configuracio"> Configuracio </a></li>
       <li><a href="/">Videos en directe</a></li>
       <li><a href="/parametres"> Parametrització</a></li>
       <li><a href="/angles">Objectes i Angles </a></li>
@@ -66,7 +66,7 @@
     </form>
      
     <form action="/enviarFrame" method="POST">
-      <p><input id=use_frame  type="submit" name="nou_frame" value="ENVIAR ESCOLLIT"></p>
+      <p><input id='use_frame'  type="submit" name="nou_frame" value="ENVIAR ESCOLLIT"></p>
       <input type='text' id='nom_frame' name="nom_frame"/> <br>
     </form>
 
@@ -96,8 +96,6 @@
     </form>
 
 
-    
-
     <!--- GUARDAR COM A NOU BACKGROUND2  -->
 
     <form action="/guardarFrame">
@@ -108,55 +106,18 @@
       <p><input id=guardar_frame2  type="submit" name="guardar_frame2" value="GUARDAR PER DEFECTE" ></p>
     </form>
 
- 
+    
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
 
-    <script>
-      function readURL(input) {
-        if (input.files && input.files[0]) { //Revisamos que el input tenga contenido
-          var reader = new FileReader(); //Leemos el contenido
-          
-          var nom_arxiu = input.files.item(0).name;
-          var mida_arxiu = input.files.item(0).size;
-          var tipus_arxiu = input.files.item(0).type;
-          document.getElementById("nom_frame").value = nom_arxiu;
-          
-          reader.onload = function(e) { //Al cargar el contenido lo pasamos como atributo de la imagen de arriba
-            $('#blah').attr('src', e.target.result);
-          }
-          
-          reader.readAsDataURL(input.files[0]);
-        }
-      }
-      
-      $("#imgInp").change(function() { //Cuando el input cambie (se cargue un nuevo archivo) se va a ejecutar de nuevo el cambio de imagen y se verá reflejado.
-        readURL(this);
-      });
-      
-    </script>
-
-    <script>
-      function readURL2(input) {
-        if (input.files && input.files[0]) { //Revisamos que el input tenga contenido
-          var reader = new FileReader(); //Leemos el contenido
-          
-          var nom_arxiu = input.files.item(0).name;
-          var mida_arxiu = input.files.item(0).size;
-          var tipus_arxiu = input.files.item(0).type;
-          document.getElementById("nom_frame2").value = nom_arxiu;
-          
-          reader.onload = function(e) { //Al cargar el contenido lo pasamos como atributo de la imagen de arriba
-            $('#blah2').attr('src', e.target.result);
-          }
-          
-          reader.readAsDataURL(input.files[0]);
-        }
-      }
-      
-      $("#imgInp2").change(function() { //Cuando el input cambie (se cargue un nuevo archivo) se va a ejecutar de nuevo el cambio de imagen y se verá reflejado.
-        readURL2(this);
-      });
-      
-    </script>
+    <h1 id='calib'>CALIBRATGE</h1>
+    <img id="video" src="{{ url_for('video1') }}"> 
+    
+    <form action='/calibrate'>
+      <button type ='submit' id='btn_calibrar'>CALIBRATE</button>
+    </form>
     
   </body>
 </html>

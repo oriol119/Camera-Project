@@ -35,6 +35,7 @@ global static_frame_flagg
 static_frame_flagg = False
 
 global frame_escollit, frame_escollit2
+global im_xyz, im_rdis, im_amp, amplitut_color
 
 global frame_flagg, frame_flagg2
 
@@ -68,8 +69,8 @@ last_epoch = 0
 
 def index():
     return render_template('videos_openCV.html')
-  
-  
+
+
 def function(flag, cam):
     
     global llista, llista_bool
@@ -77,8 +78,10 @@ def function(flag, cam):
     global frame_inici, frame_inici_amplitut, frame_inici2, frame_inici_amplitut2
     global miarea, maarea
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
-    global frame_valid
+    global frame_valid, detector
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
+    global im_xyz, im_rdis, im_amp
+    global amplitut_color_lineas
 
     
     grados_flagg = False
@@ -246,12 +249,12 @@ def function(flag, cam):
                 acum1 += resta[i][j]
                 acum2 += resta2[i][j]
 
-                if resta[i][j] > 0.025:
+                if resta[i][j] > 0.01:
                     resta[i][j]= 0    #blanc
                 else:
                     resta[i][j]= 100  #negre
 
-                if resta_altura[i][j] > 0.025:
+                if resta_altura[i][j] > 0.01:
                     resta_altura[i][j]= 0   #blanc
                 else:
                     resta_altura[i][j]= 100
@@ -277,7 +280,22 @@ def function(flag, cam):
         calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz)
 
         amplitut_color[86, 112] = [0, 0, 255]
-        if flag == 2:
+
+        amplitut_color_lineas = amplitut_color
+        
+
+        if flag == 1:
+            if len(llistaCentreMases) == 3:
+              
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(0,255,0), 1)
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+
+                scipy.misc.imsave('static/img/calibracio.jpg', amplitut_color_lineas)
+
+            ret, jpeg = cv2.imencode('.jpg',amplitut_color_lineas)
+        
+        elif flag == 2:
             ret, jpeg = cv2.imencode('.jpg',amplitut_color)
         elif flag == 3:
             ret, jpeg = cv2.imencode('.jpg',resta_color)
@@ -297,12 +315,33 @@ def function(flag, cam):
 
             yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n\r\n')
-            
-
         else:
             print("frame is none")
         
+@app.route('/calibrate')
+def calibrate():
+    
+    global im_xyz, im_rdis, im_amp, frame_inici, detector, img_contorns, amplitut_color
+    
+    amplitut_color = cv2.applyColorMap(im_amp.astype(np.uint8), cv2.COLORMAP_BONE)
+    resta = frame_inici - im_rdis
+    
+    for i in range(171):
+        for j in range(223):
 
+            if resta[i][j] > 0.01:
+                resta[i][j]= 0    #blanc
+            else:
+                resta[i][j]= 100  #negre
+    
+    calibratge(resta, detector)
+    
+    
+    return render_template("resultats_calibracio.html")
+
+@app.route('/1')
+def video1():
+    return Response(function(1, ifm3dpy.Camera()), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/2')
@@ -443,7 +482,6 @@ def params():
 
 
 
-
 @app.route("/angles", methods=["POST", "GET"])
 def angles():
     global llista_bool
@@ -451,11 +489,11 @@ def angles():
     return render_template("angles.html", llista_bool = llista_bool, llista_definitiva = llista_definitiva, headings = headings, headings2 = headings2, llista_definitiva2 = llista_definitiva2)
 
 
-@app.route("/frame", methods=["POST", "GET"])
+@app.route("/configuracio", methods=["POST", "GET"])
 def staticFrame():
     global frame_flagg, frame_flagg2, frame_valid
 
-    return render_template("frame.html", frame_valid = frame_valid)
+    return render_template("configuracio.html", frame_valid = frame_valid)
 
 
 @app.route('/20')
@@ -657,7 +695,7 @@ def treureFrame1():
     
     background_static(3, ifm3dpy.Camera())
     return render_template("/frame.html", frame_flagg = frame_flagg, frame_flagg2 = frame_flagg2)
-    
+     
 
 
 @app.route("/treureFrame2")
@@ -703,7 +741,6 @@ def carreguemValorsXML():
 
     global maxAreaValue, minAreaValue, colorBlobValue, minDistBetweenBlobsValue, minThresholdValue, maxThresholdValue, thresholdStepValue, minRepeatabilityValue, minCircularityValue, maxCircularityValue, minConvexityValue, maxConvexityValue, minInertiaRatioValue, maxInertiaRatioValue
 
-
     file_name = 'templates/arxiu.xml'
     dom = ElementTree.parse(file_name)
     parametres = dom.findall('Parametres')
@@ -728,7 +765,7 @@ def carreguemValorsXML():
 
 
 def calcularInfoResta(resta, amplitut_color, detector):
-
+    
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
     global llista_bool, llista_definitiva, llista_definitiva2
     matriu_blanc = np.zeros((172,224), np.uint8)
@@ -755,7 +792,6 @@ def calcularInfoResta(resta, amplitut_color, detector):
             y = keypoints[k].pt[1]
             
             cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
-            
             for cnt in contours:
                 
                 area = cv2.contourArea(cnt)
@@ -773,8 +809,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
                         if [X,Y] not in llistaCentreMases:
                             
                             llistaCentreMases.append([X,Y])
-                            
-                    
+                             
                     if M['mu20']-M['mu02'] != 0:
                         
                         grados_flagg = True
@@ -793,6 +828,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
                         llista_bool = True
                         sumatori += 1
   
+    
 
     #print(llistaCentreMases)      
     keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
@@ -801,8 +837,8 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
 def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz):
     
-    global llista_definitiva ,llista_definitiva2
-
+    global llista_definitiva ,llista_definitiva2, mitjanaReal
+    
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey_rest = cv2.cvtColor(resta_altura, cv2.COLOR_BGR2GRAY)
@@ -841,17 +877,17 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
                         dist = cv2.pointPolygonTest(cnt, (x,y), True)
                         if dist >= 0:
                             if im_xyz[y,x,1] > max_left:
-                                max_left = im_xyz[y,x,1]
+                                max_left = round(im_xyz[y,x,1],4)
                             if im_xyz[y,x,1] < max_right:
-                                max_right = im_xyz[y,x,1]
+                                max_right = round(im_xyz[y,x,1],4)
                             
                             if im_xyz[y,x,2] > max_top:
-                                max_top = im_xyz[y,x,2]
+                                max_top = round(im_xyz[y,x,2],4)
                             if im_xyz[y,x,2] < max_bottom:
-                                max_bottom = im_xyz[y,x,2]
+                                max_bottom = round(im_xyz[y,x,2],4)
                             
                             if im_xyz[y,x,0] < max_height:    
-                                max_height = im_xyz[y,x,0]
+                                max_height = round(im_xyz[y,x,0],4)
                             
                             x_sum += im_xyz[y,x, 1] 
                             y_sum += im_xyz[y,x, 2] 
@@ -890,7 +926,110 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
                     iteracions += 1
                     
     #if len(llistaCentreMases) > 0:
-    #    print(llista_definitiva)
+        #print(llista_definitiva)
+        #print(mitjanaReal)
+
+
+def calibratge(resta,  detector):
+    
+    global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp, amplitut_color
+    global llista_bool, llista_definitiva, llista_definitiva2, mitjanaReal
+    matriu_blanc = np.zeros((172,224), np.uint8)
+    resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
+    img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
+    keypoints = detector.detect(img_grey)
+    _, binary = cv2.threshold(img_grey, 100,255, cv2.THRESH_BINARY)
+    contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
+
+    llistaCentreMases = []
+    
+    
+    num_elements = 0
+    if len(keypoints) > 0:
+        
+        for k in range(len(keypoints)):
+            #print(len(keypoints))
+            llista = []
+            llista2 = []
+  
+            num_elements +=1
+            
+            x = keypoints[k].pt[0]
+            y = keypoints[k].pt[1]
+            
+            cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
+            
+            for cnt in contours:
+                
+                area = cv2.contourArea(cnt)
+                
+                if area > 200 and area < 1200:   
+                    
+                    M = cv2.moments(cnt)
+                    
+                    if M['m00'] != 0:
+                        
+                        #centroid
+                        X = M['m10'] / M['m00']
+                        Y = M['m01'] / M['m00']
+                        
+                        if [X,Y] not in llistaCentreMases:
+                            
+                            llistaCentreMases.append([X,Y])
+
+                        llista_bool = True
+                       
+  
+
+    #print(llistaCentreMases)      
+    keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+    if num_elements == 3:
+        print("Els tres elements han sigut detectats correctament")
+        calcularInfoRestaAltura(resta, amplitut_color, detector, llistaCentreMases, im_xyz)
+        
+        P0 = llistaCentreMases[0]
+        P1 = llistaCentreMases[1]
+        P2 = llistaCentreMases[2]
+
+        distancia1 = math.sqrt(((P0[0]-P1[0])**2)+((P0[1]-P1[1])**2))
+        distancia2 = math.sqrt(((P0[0]-P2[0])**2)+((P0[1]-P2[1])**2))
+        distancia3 = math.sqrt(((P2[0]-P1[0])**2)+((P2[1]-P1[1])**2))
+        
+        if distancia1 > distancia2 and distancia1 > distancia3:
+            Punt0 = P2
+            Punt1 = P1
+            Punt2 = P0
+
+        if distancia2 > distancia1 and distancia2 > distancia3:
+            Punt0 = P1
+            Punt1 = P2
+            Punt2 = P0
+
+
+        if distancia3 > distancia1 and distancia3 > distancia2:
+            Punt0 = P0
+            Punt1 = P1
+            Punt2 = P2
+
+        angle_rad = math.atan((Punt0[1]-Punt1[1])/(Punt0[0]-Punt1[0]))
+        angle_rad2 = math.atan((Punt0[1]-Punt2[1])/(Punt0[0]-Punt2[0]))
+
+        angle_graus = (angle_rad * 180)/ math.pi
+        angle_graus2 = (angle_rad2 * 180)/ math.pi
+
+        #print(angle_graus, angle_graus2)
+
+        desplaçament = Punt0[0],Punt0[1] 
+        print(desplaçament)
+
+    elif num_elements == 2:
+        print("Falta detectar 1 element per poder calibrar")
+    elif num_elements ==1:
+        print("Falten detectar 2 elements per poder calibrar")
+    elif num_elements ==0:
+        print("Falten detectar 3 elements per poder calibrar")
 
 
 if __name__ == '__main__':

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/resultats_calibracio.css')}}" >
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">    
+    
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  </head>
+
+
+  <body id=body>
+
+    <ul>
+        <li><a href="/configuracio">GO BACK</a></li>
+        <li><a class="active" href="/configuracio"> Configuracio </a></li>
+        <li><a href="/">Videos en directe</a></li>
+        <li><a href="/parametres"> Parametrització</a></li>
+        <li><a href="/angles">Objectes i Angles </a></li>
+        <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+    </ul>
+
+    <h1 id='titol'>Calibracio</h1>
+    <img id="image" src="{{ url_for('static', filename='img/calibracio.jpg') }}">
+    
+  </body>
+</html>

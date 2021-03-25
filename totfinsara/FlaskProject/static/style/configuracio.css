@@ -1,5 +1,10 @@
 body {
     margin:0;
+    
+}
+
+html{
+    height: 300%;
 }
 
 ul {
@@ -75,6 +80,28 @@ li a:hover:not(.active) {
     height: 500px;
 }
 
+#video{
+    position: absolute;
+    top:162%;
+    left: 250px;
+    width: 500px;
+
+}
+
+#calib{
+    position: absolute;
+    top: 150%;
+    left: 400px;
+}
+
+#btn_calibrar{
+    position: absolute;
+    top:230%;
+    left: 400px;
+    width: 200px;
+}
+
+
 .myButtonForm {
     width: auto;
     display:inline-block;
@@ -120,7 +147,7 @@ li a:hover:not(.active) {
 
 #img_chooser {
     position: absolute;
-    left: 100px;
+    left: 200px;
     top: 115%;  
 }
 #blah {  
@@ -130,7 +157,7 @@ li a:hover:not(.active) {
 
 #img_chooser2 {
     position: absolute;
-    left: 400px;
+    left: 600px;
     top: 115%;  
 }
 
@@ -209,5 +236,5 @@ li a:hover:not(.active) {
     width: 20%;
     height: 50%;
     z-index: 3;
-
 }
+
