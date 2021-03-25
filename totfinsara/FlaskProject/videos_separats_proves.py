@@ -46,6 +46,9 @@ global mostra, mostra2
 
 global frame_valid
 
+global calib_flagg
+calib_flagg = 0
+
 global headings, headings2
 headings = ("ID","Angle","POS X","POS Y","POS Z")
 headings2 = ("ID", "RIGHT","LEFT", "BOTTOM", "TOP", "HEIGHT")
@@ -82,6 +85,8 @@ def function(flag, cam):
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp
     global im_xyz, im_rdis, im_amp
     global amplitut_color_lineas
+    
+    calib_flagg = 0
 
     
     grados_flagg = False
@@ -285,14 +290,17 @@ def function(flag, cam):
         
 
         if flag == 1:
-            if len(llistaCentreMases) == 3:
-              
-                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
-                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(0,255,0), 1)
-                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+            #e1 = im_xyz[int(llistaCentreMases[0][1]),int(llistaCentreMases[0][0]),0] 
+            #e2 = im_xyz[int(llistaCentreMases[1][1]),int(llistaCentreMases[1][0]),0] 
+            #e3 = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),0] 
+            #print(e1,e2,e3)
 
-                scipy.misc.imsave('static/img/calibracio.jpg', amplitut_color_lineas)
+            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(0,255,0), 1)
+            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
 
+            scipy.misc.imsave('static/img/calibracio.jpg', amplitut_color_lineas)
+    
             ret, jpeg = cv2.imencode('.jpg',amplitut_color_lineas)
         
         elif flag == 2:
@@ -320,7 +328,7 @@ def function(flag, cam):
         
 @app.route('/calibrate')
 def calibrate():
-    
+    global calib_flagg
     global im_xyz, im_rdis, im_amp, frame_inici, detector, img_contorns, amplitut_color
     
     amplitut_color = cv2.applyColorMap(im_amp.astype(np.uint8), cv2.COLORMAP_BONE)
@@ -329,15 +337,17 @@ def calibrate():
     for i in range(171):
         for j in range(223):
 
-            if resta[i][j] > 0.01:
+            if resta[i][j] > 0.06:
                 resta[i][j]= 0    #blanc
             else:
                 resta[i][j]= 100  #negre
     
     calibratge(resta, detector)
     
-    
-    return render_template("resultats_calibracio.html")
+    if calib_flagg != 0:
+        return render_template("error_calibracio.html", calib_flagg = calib_flagg)
+    else:
+        return render_template("resultats_calibracio.html")
 
 @app.route('/1')
 def video1():
@@ -934,6 +944,8 @@ def calibratge(resta,  detector):
     
     global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp, amplitut_color
     global llista_bool, llista_definitiva, llista_definitiva2, mitjanaReal
+    global calib_flagg
+
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
@@ -944,16 +956,15 @@ def calibratge(resta,  detector):
 
     llistaCentreMases = []
     
-    
     num_elements = 0
     if len(keypoints) > 0:
-        
+
         for k in range(len(keypoints)):
             #print(len(keypoints))
             llista = []
             llista2 = []
   
-            num_elements +=1
+            num_elements += 1
             
             x = keypoints[k].pt[0]
             y = keypoints[k].pt[1]
@@ -964,7 +975,7 @@ def calibratge(resta,  detector):
                 
                 area = cv2.contourArea(cnt)
                 
-                if area > 200 and area < 1200:   
+                if area > 100 and area < 1200:   
                     
                     M = cv2.moments(cnt)
                     
@@ -980,9 +991,7 @@ def calibratge(resta,  detector):
 
                         llista_bool = True
                        
-  
-
-    #print(llistaCentreMases)      
+    print(llistaCentreMases)      
     keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     
     if num_elements == 3:
@@ -993,44 +1002,88 @@ def calibratge(resta,  detector):
         P1 = llistaCentreMases[1]
         P2 = llistaCentreMases[2]
 
-        distancia1 = math.sqrt(((P0[0]-P1[0])**2)+((P0[1]-P1[1])**2))
-        distancia2 = math.sqrt(((P0[0]-P2[0])**2)+((P0[1]-P2[1])**2))
-        distancia3 = math.sqrt(((P2[0]-P1[0])**2)+((P2[1]-P1[1])**2))
+        P0_X = im_xyz[int(llistaCentreMases[0][1]),int(llistaCentreMases[0][0]),1]
+        P0_Y = im_xyz[int(llistaCentreMases[0][1]),int(llistaCentreMases[0][0]),2]
+        P0_Z = im_xyz[int(llistaCentreMases[0][1]),int(llistaCentreMases[0][0]),0]
         
+        P1_X = im_xyz[int(llistaCentreMases[1][1]),int(llistaCentreMases[1][0]),1]
+        P1_Y = im_xyz[int(llistaCentreMases[1][1]),int(llistaCentreMases[1][0]),2]
+        P1_Z = im_xyz[int(llistaCentreMases[1][1]),int(llistaCentreMases[1][0]),0]
+        
+        P2_X = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),1]
+        P2_Y = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),2]
+        P2_Z = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),0]
+        
+        #print(P0_X,P0_Y,P0_Z)
+        #print(P1_X,P1_Y,P1_Z)
+        #print(P2_X,P2_Y,P2_Z)
+
+
+        distancia1 = math.sqrt(((P1_X-P0_X)**2)+((P1_Y-P0_Y)**2))
+        distancia2 = math.sqrt(((P1_X-P2_X)**2)+((P1_Y-P2_Y)**2))
+        distancia3 = math.sqrt(((P0_X-P2_X)**2)+((P0_Y-P2_Y)**2))
+        
+        #print(distancia1,distancia2,distancia3)
+    
         if distancia1 > distancia2 and distancia1 > distancia3:
-            Punt0 = P2
-            Punt1 = P1
-            Punt2 = P0
+            Punt0 = [P2_X, P2_Y, P2_Z]
+            Punt1 = [P1_X, P1_Y, P1_Z]
+            Punt2 = [P0_X, P0_Y, P0_Z]
 
-        if distancia2 > distancia1 and distancia2 > distancia3:
-            Punt0 = P1
-            Punt1 = P2
-            Punt2 = P0
+        elif distancia2 > distancia1 and distancia2 > distancia3:
+            Punt0 = [P0_X, P0_Y, P0_Z]
+            Punt1 = [P1_X, P1_Y, P1_Z]
+            Punt2 = [P2_X, P2_Y, P2_Z]
+
+        elif distancia3 > distancia1 and distancia3 > distancia2:
+            Punt0 = [P1_X, P1_Y, P1_Z]
+            Punt1 = [P0_X, P0_Y, P0_Z]
+            Punt2 = [P2_X, P2_Y, P2_Z]
+        
+        #print(Punt0)
+
+        print(P0_Z, P1_Z, P2_Z)
+        if abs(P0_Z - P1_Z) > 0.00001:
+            print("Error: L'alçada dels objectes no es vàlida")
+            calib_flagg = 4
+            
+        if abs(P1_Z - P2_Z) > 0.00001:
+            print("Error: L'alçada dels objectes no es vàlida")
+            calib_flagg = 4
+        
+        if abs(P2_Z - P0_Z) > 0.00001:
+            print("Error: L'alçada dels objectes no es vàlida")
+            calib_flagg = 4
+       
 
 
-        if distancia3 > distancia1 and distancia3 > distancia2:
-            Punt0 = P0
-            Punt1 = P1
-            Punt2 = P2
-
-        angle_rad = math.atan((Punt0[1]-Punt1[1])/(Punt0[0]-Punt1[0]))
-        angle_rad2 = math.atan((Punt0[1]-Punt2[1])/(Punt0[0]-Punt2[0]))
+        angle_rad = math.atan2((Punt0[0]-Punt1[0])/(Punt0[1]-Punt1[1]))
+        angle_rad2 = math.atan((Punt0[0]-Punt2[1])/(Punt0[0]-Punt2[0]))
 
         angle_graus = (angle_rad * 180)/ math.pi
-        angle_graus2 = (angle_rad2 * 180)/ math.pi
+        #angle_graus2 = (angle_rad2 * 180)/ math.pi
 
         #print(angle_graus, angle_graus2)
 
-        desplaçament = Punt0[0],Punt0[1] 
-        print(desplaçament)
+        #desplaçament = Punt0[0],Punt0[1] 
+        #print(desplaçament)
 
     elif num_elements == 2:
-        print("Falta detectar 1 element per poder calibrar")
+
+        calib_flagg = 1
+        print("Error: Falta detectar 1 element per poder calibrar")
+        
+    
     elif num_elements ==1:
-        print("Falten detectar 2 elements per poder calibrar")
+        
+        calib_flagg = 2
+        print("Error: Falten detectar 2 elements per poder calibrar")
+
     elif num_elements ==0:
-        print("Falten detectar 3 elements per poder calibrar")
 
+        calib_flagg = 3
+        print("Error: Falten detectar 3 elements per poder calibrar")
 
+    print(calib_flagg)
 if __name__ == '__main__':
     app.run(host='192.168.0.80', debug=True, threaded=True)

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/error_calibracio.css')}}" >
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
+    
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  </head>
+
+
+  <body id=body>
+    
+    <ul>
+      <li><a class="active" href="/configuracio">GO BACK</a></li>
+      <li><a href="/configuracio"> Configuracio </a></li>
+      <li><a href="/">Videos en directe</a></li>
+      <li><a href="/parametres"> Parametrització</a></li>
+      <li><a href="/angles">Objectes i Angles </a></li>
+      <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+
+    </ul>
+
+    {% if calib_flagg == 1 %}
+      <h1 class="text_error"> Error detecció: Falta detectar 1 element per poder calibrar </h1>
+    {% endif %}
+
+    {% if calib_flagg == 2 %}
+      <h1 class="text_error"> Error detecció: Falten detectar 2 element per poder calibrar </h1>
+    {% endif %}
+
+    {% if calib_flagg == 3 %}
+      <h1 class="text_error">Error detecció: Falten detectar 3 element per poder calibrar </h1>
+    {% endif %}
+
+    {% if calib_flagg == 4 %}
+      <h1 class="text_error">Error inclinació: L'alçada dels 3 elements no coincideix </h1>
+    {% endif %}
+
+  </body>
+</html>

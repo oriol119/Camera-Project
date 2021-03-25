@@ -1,6 +1,6 @@
 <Elements>  
     <Parametres> 
-        <minArea>303</minArea> 
+        <minArea>100</minArea> 
         <maxArea>1500</maxArea> 
         <colorBlob>0</colorBlob>
         <minDistBetweenBlobs>10</minDistBetweenBlobs>
