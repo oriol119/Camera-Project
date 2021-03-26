@@ -46,3 +46,10 @@ li a:hover:not(.active) {
     font-size: 25px;
 }
 
+#boto_enrere {
+    position: absolute;
+    top: 65%;
+    left: 35%;
+    font-size: 30px;
+}
+

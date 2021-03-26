@@ -16,6 +16,7 @@ from xml.etree import ElementTree
 import scipy.misc
 from PIL import Image
 import PIL
+import matplotlib as mat
 
 
 global maxArea, minArea, blobColor, minDistBetweenBlobs, minThreshold, maxThreshold, thresholdStep, minRepeatability, minCircularity, maxCircularity, minConvexity, maxConvexity, minInertiaRatio, maxInertiaRatio
@@ -290,17 +291,18 @@ def function(flag, cam):
         
 
         if flag == 1:
+            if len(llistaCentreMases) == 3:
             #e1 = im_xyz[int(llistaCentreMases[0][1]),int(llistaCentreMases[0][0]),0] 
             #e2 = im_xyz[int(llistaCentreMases[1][1]),int(llistaCentreMases[1][0]),0] 
             #e3 = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),0] 
             #print(e1,e2,e3)
 
-            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
-            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(0,255,0), 1)
-            cv2.line(amplitut_color_lineas,(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[0][0]),int(llistaCentreMases[0][1])),(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(0,255,0), 1)
+                cv2.line(amplitut_color_lineas,(int(llistaCentreMases[2][0]),int(llistaCentreMases[2][1])),(int(llistaCentreMases[1][0]),int(llistaCentreMases[1][1])),(0,255,0), 1)
 
-            scipy.misc.imsave('static/img/calibracio.jpg', amplitut_color_lineas)
-    
+                scipy.misc.imsave('static/img/calibracio.jpg', amplitut_color_lineas)
+
             ret, jpeg = cv2.imencode('.jpg',amplitut_color_lineas)
         
         elif flag == 2:
@@ -332,17 +334,18 @@ def calibrate():
     global im_xyz, im_rdis, im_amp, frame_inici, detector, img_contorns, amplitut_color
     
     amplitut_color = cv2.applyColorMap(im_amp.astype(np.uint8), cv2.COLORMAP_BONE)
-    resta = frame_inici - im_rdis
+    resta_C = frame_inici - im_rdis
     
     for i in range(171):
         for j in range(223):
 
-            if resta[i][j] > 0.06:
-                resta[i][j]= 0    #blanc
+            if resta_C[i][j] > 0.04:
+                resta_C[i][j]= 0    #blanc
             else:
-                resta[i][j]= 100  #negre
-    
-    calibratge(resta, detector)
+                resta_C[i][j]= 100  #negre
+
+ 
+    calibratge(resta_C, detector)
     
     if calib_flagg != 0:
         return render_template("error_calibracio.html", calib_flagg = calib_flagg)
@@ -789,7 +792,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
     llistaCentreMases = []
     llista_definitiva = [0,0,0,0,0,0]
     llista_definitiva2 = [0,0,0,0,0,0]
-
+    
     if len(keypoints) > 0:
         
         for k in range(len(keypoints)):
@@ -806,11 +809,12 @@ def calcularInfoResta(resta, amplitut_color, detector):
                 
                 area = cv2.contourArea(cnt)
                 
-                if area > 200 and area < 1200:   
+                if area > 100 and area < 1200:   
                     
                     M = cv2.moments(cnt)
                     
                     if M['m00'] != 0:
+                        
                         
                         #centroid
                         X = M['m10'] / M['m00']
@@ -847,7 +851,7 @@ def calcularInfoResta(resta, amplitut_color, detector):
 
 def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentreMases, im_xyz):
     
-    global llista_definitiva ,llista_definitiva2, mitjanaReal
+    global llista_definitiva ,llista_definitiva2, mitjanaReal, ite
     
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_altura = cv2.applyColorMap(resta_altura.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
@@ -940,36 +944,36 @@ def calcularInfoRestaAltura(resta_altura, amplitut_color, detector, llistaCentre
         #print(mitjanaReal)
 
 
-def calibratge(resta,  detector):
+def calibratge(resta,detector):
     
-    global llistaCentreMases,resta_color, img_grey, img_contorns, binary, keyp, amplitut_color
+    global amplitut_color, llistaCentreMases
     global llista_bool, llista_definitiva, llista_definitiva2, mitjanaReal
     global calib_flagg
 
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
     img_grey = cv2.cvtColor(resta_color, cv2.COLOR_BGR2GRAY)
-    keypoints = detector.detect(img_grey)
+    keypoints_C = detector.detect(img_grey)
     _, binary = cv2.threshold(img_grey, 100,255, cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
 
-    llistaCentreMases = []
-    
+    llistaCentreMases_C = []
+    print(len(keypoints_C))
     num_elements = 0
-    if len(keypoints) > 0:
+    if len(llistaCentreMases) > 0:
 
-        for k in range(len(keypoints)):
+        for k in range(len(llistaCentreMases)):
             #print(len(keypoints))
             llista = []
             llista2 = []
   
             num_elements += 1
             
-            x = keypoints[k].pt[0]
-            y = keypoints[k].pt[1]
+            #x = keypoints_C[k].pt[0]
+            #y = keypoints_C[k].pt[1]
             
-            cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
+            #cv2.putText(amplitut_color,str(k),(int(x),int(y)),cv2.FONT_HERSHEY_COMPLEX_SMALL,1,(0,0,255),1)
             
             for cnt in contours:
                 
@@ -985,14 +989,14 @@ def calibratge(resta,  detector):
                         X = M['m10'] / M['m00']
                         Y = M['m01'] / M['m00']
                         
-                        if [X,Y] not in llistaCentreMases:
+                        if [X,Y] not in llistaCentreMases_C:
                             
-                            llistaCentreMases.append([X,Y])
+                            llistaCentreMases_C.append([X,Y])
 
                         llista_bool = True
                        
-    print(llistaCentreMases)      
-    keyp = cv2.drawKeypoints(amplitut_color,keypoints, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    print(llistaCentreMases_C)      
+    keyp = cv2.drawKeypoints(amplitut_color,keypoints_C, np.array([]), (0,0,255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
     
     if num_elements == 3:
         print("Els tres elements han sigut detectats correctament")
@@ -1014,9 +1018,9 @@ def calibratge(resta,  detector):
         P2_Y = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),2]
         P2_Z = im_xyz[int(llistaCentreMases[2][1]),int(llistaCentreMases[2][0]),0]
         
-        #print(P0_X,P0_Y,P0_Z)
-        #print(P1_X,P1_Y,P1_Z)
-        #print(P2_X,P2_Y,P2_Z)
+        print(P0_X,P0_Y,P0_Z)
+        print(P1_X,P1_Y,P1_Z)
+        print(P2_X,P2_Y,P2_Z)
 
 
         distancia1 = math.sqrt(((P1_X-P0_X)**2)+((P1_Y-P0_Y)**2))
@@ -1027,40 +1031,57 @@ def calibratge(resta,  detector):
     
         if distancia1 > distancia2 and distancia1 > distancia3:
             Punt0 = [P2_X, P2_Y, P2_Z]
-            Punt1 = [P1_X, P1_Y, P1_Z]
-            Punt2 = [P0_X, P0_Y, P0_Z]
+            if distancia2 > distancia3:
+                Punt1 = [P1_X, P1_Y, P1_Z]
+                Punt2 = [P0_X, P0_Y, P0_Z]
+            else:
+                Punt1 = [P0_X, P0_Y, P0_Z]
+                Punt2 = [P1_X, P1_Y, P1_Z]
 
         elif distancia2 > distancia1 and distancia2 > distancia3:
             Punt0 = [P0_X, P0_Y, P0_Z]
-            Punt1 = [P1_X, P1_Y, P1_Z]
-            Punt2 = [P2_X, P2_Y, P2_Z]
-
+            if distancia1 > distancia3:
+                Punt1 = [P1_X, P1_Y, P1_Z]
+                Punt2 = [P0_X, P0_Y, P0_Z]
+            else:
+                Punt1 = [P0_X, P0_Y, P0_Z]
+                Punt2 = [P1_X, P1_Y, P1_Z]
+            
         elif distancia3 > distancia1 and distancia3 > distancia2:
             Punt0 = [P1_X, P1_Y, P1_Z]
-            Punt1 = [P0_X, P0_Y, P0_Z]
-            Punt2 = [P2_X, P2_Y, P2_Z]
+            if distancia1 > distancia2:
+                Punt1 = [P0_X, P0_Y, P0_Z]
+                Punt2 = [P2_X, P2_Y, P2_Z]
+            else:
+                Punt1 = [P2_X, P2_Y, P2_Z]
+                Punt2 = [P0_X, P0_Y, P0_Z]
         
         #print(Punt0)
 
         print(P0_Z, P1_Z, P2_Z)
-        if abs(P0_Z - P1_Z) > 0.00001:
+        if abs(P0_Z - P1_Z) > 0.01:
             print("Error: L'alçada dels objectes no es vàlida")
             calib_flagg = 4
             
-        if abs(P1_Z - P2_Z) > 0.00001:
+        if abs(P1_Z - P2_Z) > 0.01:
             print("Error: L'alçada dels objectes no es vàlida")
             calib_flagg = 4
         
-        if abs(P2_Z - P0_Z) > 0.00001:
+        if abs(P2_Z - P0_Z) > 0.01:
             print("Error: L'alçada dels objectes no es vàlida")
             calib_flagg = 4
        
-
-
-        angle_rad = math.atan2((Punt0[0]-Punt1[0])/(Punt0[1]-Punt1[1]))
-        angle_rad2 = math.atan((Punt0[0]-Punt2[1])/(Punt0[0]-Punt2[0]))
+        angle_rad = math.atan2((Punt0[0]-Punt1[0]),(Punt0[1]-Punt1[1]))
+        angle_rad2 = math.atan2((Punt1[0]-Punt0[0]),(Punt1[1]-Punt0[1]))
 
         angle_graus = (angle_rad * 180)/ math.pi
+        angle_graus2 = (angle_rad2 * 180)/ math.pi
+
+        print(angle_graus, angle_graus2)
+        suma_graus = abs(angle_graus) + abs(angle_graus2)
+        if suma_graus != 180:
+            calib_flagg = 5
+
         #angle_graus2 = (angle_rad2 * 180)/ math.pi
 
         #print(angle_graus, angle_graus2)
@@ -1084,6 +1105,6 @@ def calibratge(resta,  detector):
         calib_flagg = 3
         print("Error: Falten detectar 3 elements per poder calibrar")
 
-    print(calib_flagg)
+    
 if __name__ == '__main__':
     app.run(host='192.168.0.80', debug=True, threaded=True)

@@ -15,13 +15,11 @@
   <body id=body>
     
     <ul>
-      <li><a class="active" href="/configuracio">GO BACK</a></li>
-      <li><a href="/configuracio"> Configuracio </a></li>
+      <li><a class="active" href="/configuracio"> Configuracio </a></li>
       <li><a href="/">Videos en directe</a></li>
       <li><a href="/parametres"> Parametrització</a></li>
       <li><a href="/angles">Objectes i Angles </a></li>
       <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
-
     </ul>
 
     {% if calib_flagg == 1 %}
@@ -37,8 +35,14 @@
     {% endif %}
 
     {% if calib_flagg == 4 %}
-      <h1 class="text_error">Error inclinació: L'alçada dels 3 elements no coincideix </h1>
+      <h1 class="text_error">Error inclinació: La diferència d'alçada dels elements > 1cm </h1>
     {% endif %}
+
+    {% if calib_flagg == 5 %}
+      <h1 class="text_error">Error angle: La suma dels 2 angles respecte a WORLD no fa 180º </h1>
+    {% endif %}
+
+    <a id="boto_enrere" href="/configuracio">TORNAR ENRERE</a>
 
   </body>
 </html>
