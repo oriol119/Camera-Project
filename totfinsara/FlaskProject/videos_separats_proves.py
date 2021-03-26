@@ -2,7 +2,7 @@ import cv2
 import sys
 import numpy as np
 #from mail import sendEmail
-from flask import Flask, render_template, Response, request
+from flask import Flask, render_template, Response, request, send_file
 #from flask_basicauth import BasicAuth
 
 import time
@@ -16,7 +16,10 @@ from xml.etree import ElementTree
 import scipy.misc
 from PIL import Image
 import PIL
-import matplotlib as mat
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+import seaborn as sns
+import io
 
 
 global maxArea, minArea, blobColor, minDistBetweenBlobs, minThreshold, maxThreshold, thresholdStep, minRepeatability, minCircularity, maxCircularity, minConvexity, maxConvexity, minInertiaRatio, maxInertiaRatio
@@ -51,6 +54,8 @@ global calib_flagg
 calib_flagg = 0
 
 global headings, headings2
+global Punt0, Punt1, Punt2
+
 headings = ("ID","Angle","POS X","POS Y","POS Z")
 headings2 = ("ID", "RIGHT","LEFT", "BOTTOM", "TOP", "HEIGHT")
 
@@ -67,6 +72,25 @@ app = Flask(__name__)
 
 #basic_auth = BasicAuth(app)
 last_epoch = 0
+
+fig,ax = plt.subplots(figsize=(6,6))
+ax = sns.set_style(style="darkgrid")
+
+
+@app.route('/visualize')
+def visualize():
+    global Punt0, Punt1, Punt2
+
+    x=[Punt0[0], Punt1[0], Punt2[0]]
+    y=[Punt0[1], Punt1[1], Punt2[1]]
+
+    sns.lineplot(x,y)
+    canvas=FigureCanvas(fig)
+    img=io.BytesIO()
+    fig.savefig(img)
+    img.seek(0)
+    return send_file(img, mimetype='img/png')
+
 
 @app.route('/')
 #@basic_auth.required
@@ -110,7 +134,6 @@ def function(flag, cam):
     
     carreguemValorsXML()
     
-
     ##---------Assignem el valors llegits al XML---------##        
     
     fg = ifm3dpy.FrameGrabber(cam, ifm3dpy.IMG_AMP | ifm3dpy.IMG_RDIS | ifm3dpy.IMG_CART)
@@ -949,6 +972,7 @@ def calibratge(resta,detector):
     global amplitut_color, llistaCentreMases
     global llista_bool, llista_definitiva, llista_definitiva2, mitjanaReal
     global calib_flagg
+    global Punt0, Punt1, Punt2
 
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
@@ -1090,18 +1114,14 @@ def calibratge(resta,detector):
         #print(desplaçament)
 
     elif num_elements == 2:
-
         calib_flagg = 1
-        print("Error: Falta detectar 1 element per poder calibrar")
-        
+        print("Error: Falta detectar 1 element per poder calibrar")  
     
-    elif num_elements ==1:
-        
+    elif num_elements == 1:
         calib_flagg = 2
         print("Error: Falten detectar 2 elements per poder calibrar")
 
-    elif num_elements ==0:
-
+    elif num_elements == 0:
         calib_flagg = 3
         print("Error: Falten detectar 3 elements per poder calibrar")
 

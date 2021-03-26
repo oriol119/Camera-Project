@@ -58,3 +58,10 @@ li a:hover:not(.active) {
     left: 5%;
 }
 
+#image2 {
+    position: absolute;
+    width: 50%;
+    top: 15%;
+    left: 40%;
+}
+
