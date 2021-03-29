@@ -18,6 +18,7 @@ from PIL import Image
 import PIL
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.patches import Polygon
 import seaborn as sns
 import io
 
@@ -62,7 +63,11 @@ headings2 = ("ID", "RIGHT","LEFT", "BOTTOM", "TOP", "HEIGHT")
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
 #object_classifier = cv2.CascadeClassifier("models/fullbody_recognition_model.xml") # an opencv classifier
+#def Thread():
+#    while True:
+#        print("uuu")
 
+#threading.Thread(target=Thread).start()
 # App Globals (do not edit)
 app = Flask(__name__)
 #run_with_ngrok(app)
@@ -75,8 +80,12 @@ last_epoch = 0
 
 
 
-fig,ax = plt.subplots(figsize=(10,10))
+fig,ax = plt.subplots()
 ax = sns.set_style(style="darkgrid")
+
+
+#ax = plt.gca()
+#ax.set_xlim(0,1)
 
 
 @app.route('/world')
@@ -87,46 +96,59 @@ def world():
     
     x = np.array([Punt0[0], Punt1[0], Punt2[0]])
     y = np.array([Punt0[1], Punt1[1], Punt2[1]])
+    x_wp = np.array([Punt0_wp[0], Punt1_wp[0], Punt2_wp[0]])
+    y_wp = np.array([Punt0_wp[1], Punt1_wp[1], Punt2_wp[1]])
+    x_usr = np.array([Punt0_usr[0], Punt1_usr[0], Punt2_usr[0]])
+    y_usr = np.array([Punt0_usr[1], Punt1_usr[1], Punt2_usr[1]])
+
+    
     plt.scatter(x,y)
+    plt.scatter(x_wp,y_wp)
+    plt.scatter(x_usr,y_usr)
+
     sns.lineplot(x,y)
+    sns.lineplot(x_wp,y_wp)
+    sns.lineplot(x_usr,y_usr)
+    
+    
     canvas=FigureCanvas(fig)
     img=io.BytesIO()
     fig.savefig(img)
     img.seek(0)
     return send_file(img, mimetype='img/png')
 
-@app.route('/world_prima')
-def world_prima():
-    global Punt0_wp, Punt1_wp, Punt2_wp
+#@app.route('/world_prima')
+#def world_prima():
+#    global Punt0_wp, Punt1_wp, Punt2_wp
+#
+#
+#    x_wp = np.array([Punt0_wp[0], Punt1_wp[0], Punt2_wp[0]])
+#    y_wp = np.array([Punt0_wp[1], Punt1_wp[1], Punt2_wp[1]])
+#   plt.scatter(x_wp,y_wp)
+#    sns.lineplot(x_wp,y_wp)
+#    canvas=FigureCanvas(fig)
+#    img2=io.BytesIO()
+#    fig.savefig(img2)
+#    img2.seek(0)
+#    return send_file(img2, mimetype='img/png')
 
 
-    x_wp = np.array([Punt0_wp[0], Punt1_wp[0], Punt2_wp[0]])
-    y_wp = np.array([Punt0_wp[1], Punt1_wp[1], Punt2_wp[1]])
-    plt.scatter(x_wp,y_wp)
-    sns.lineplot(x_wp,y_wp)
-    canvas=FigureCanvas(fig)
-    img2=io.BytesIO()
-    fig.savefig(img2)
-    img2.seek(0)
-    return send_file(img2, mimetype='img/png')
 
-
-
-@app.route('/user')
-def user():
+#@app.route('/user')
+#def user():
     
-    global Punt0_usr, Punt1_usr, Punt2_usr
+#    global Punt0_usr, Punt1_usr, Punt2_usr
 
     
-    x_usr = np.array([Punt0_usr[0], Punt1_usr[0], Punt2_usr[0]])
-    y_usr = np.array([Punt0_usr[1], Punt1_usr[1], Punt2_usr[1]])
-    plt.scatter(x_usr,y_usr)
-    sns.lineplot(x_usr,y_usr)
-    canvas=FigureCanvas(fig)
-    img3=io.BytesIO()
-    fig.savefig(img3)
-    img3.seek(0)
-    return send_file(img3, mimetype='img/png')
+#    x_usr = np.array([Punt0_usr[0], Punt1_usr[0], Punt2_usr[0]])
+#    y_usr = np.array([Punt0_usr[1], Punt1_usr[1], Punt2_usr[1]])
+#    plt.scatter(x_usr,y_usr)
+#    sns.lineplot(x_usr,y_usr)
+#    canvas=FigureCanvas(fig)
+#    img3=io.BytesIO()
+#    fig.savefig(img3)
+#    img3.seek(0)
+#    return send_file(img3, mimetype='img/png')
 
 @app.route('/')
 #@basic_auth.required
@@ -1012,6 +1034,15 @@ def calibratge(resta,detector):
     global Punt0_wp, Punt1_wp, Punt2_wp
     global Punt0_usr, Punt1_usr, Punt2_usr
 
+    Punt0 = 0
+    Punt1 = 0
+    Punt2 = 0
+    Punt0_wp = 0 
+    Punt1_wp = 0
+    Punt2_wp = 0
+    Punt0_usr = 0
+    Punt1_usr = 0
+    Punt2_usr =  0
 
     matriu_blanc = np.zeros((172,224), np.uint8)
     resta_color = cv2.applyColorMap(resta.astype(np.uint8), cv2.COLORMAP_TWILIGHT)
@@ -1020,7 +1051,8 @@ def calibratge(resta,detector):
     _, binary = cv2.threshold(img_grey, 100,255, cv2.THRESH_BINARY)
     contours, hierarchy = cv2.findContours(binary, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     img_contorns = cv2.drawContours(matriu_blanc, contours, -1 ,(255,0,0), 1)
-
+    
+    calib_flagg = 0
     llistaCentreMases_C = []
     print(len(keypoints_C))
     num_elements = 0
@@ -1142,8 +1174,8 @@ def calibratge(resta,detector):
 
         print(angle_graus, angle_graus2)
         suma_graus = abs(angle_graus) + abs(angle_graus2)
-        if suma_graus < 179 or suma_graus > 181:
-            calib_flagg = 5
+        #if suma_graus < 179 or suma_graus > 181:
+        #    calib_flagg = 5
 
         #angle_graus2 = (angle_rad2 * 180)/ math.pi
 
