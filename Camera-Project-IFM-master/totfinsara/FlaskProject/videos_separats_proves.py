@@ -63,11 +63,7 @@ headings2 = ("ID", "RIGHT","LEFT", "BOTTOM", "TOP", "HEIGHT")
 #email_update_interval = 600 # sends an email only once in this time interval
 #video_camera = VideoCamera(flip=True) # creates a camera object, flip vertically
 #object_classifier = cv2.CascadeClassifier("models/fullbody_recognition_model.xml") # an opencv classifier
-#def Thread():
-#    while True:
-#        print("uuu")
 
-#threading.Thread(target=Thread).start()
 # App Globals (do not edit)
 app = Flask(__name__)
 #run_with_ngrok(app)
@@ -79,21 +75,14 @@ app = Flask(__name__)
 last_epoch = 0
 
 
-
 fig,ax = plt.subplots()
 ax = sns.set_style(style="darkgrid")
-
-
-#ax = plt.gca()
-#ax.set_xlim(0,1)
 
 
 @app.route('/world')
 def world():
     global Punt0, Punt1, Punt2
 
-
-    
     x = np.array([Punt0[0], Punt1[0], Punt2[0]])
     y = np.array([Punt0[1], Punt1[1], Punt2[1]])
     x_wp = np.array([Punt0_wp[0], Punt1_wp[0], Punt2_wp[0]])

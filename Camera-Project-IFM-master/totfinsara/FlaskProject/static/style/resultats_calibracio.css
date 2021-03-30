@@ -47,24 +47,11 @@ li a:hover:not(.active) {
 
 #titol2{
     position: absolute;
-    top: 10%;
-    left: 65%;
+    top: 12%;
+    left: 55%;
     z-index: 2;
 }
 
-#titol3{
-    position: absolute;
-    top: 105%;
-    left: 19%;
-    z-index: 2;
-}
-
-#titol4{
-    position: absolute;
-    top: 105%;
-    left: 69%;
-    z-index: 2;
-}
 
 #back{
     position: absolute;
@@ -82,20 +69,19 @@ li a:hover:not(.active) {
 #image2 {
     position: absolute;
     width: 50%;
-    top: 15%;
+    top: 25%;
     left: 45%;
 }
 
-#image3 {
-    position: absolute;
-    width: 45%;
-    top: 110%;
-    left: 2%;
+
+#blau{
+    color: blue;
 }
 
-#image4 {
-    position: absolute;
-    width: 45%;
-    top: 110%;
-    left: 50%;
+#taronja {
+    color: orange;
+}
+
+#verd {
+    color:green;
 }
