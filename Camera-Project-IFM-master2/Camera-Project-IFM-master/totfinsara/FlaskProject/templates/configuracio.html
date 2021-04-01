@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/configuracio.css')}}" >
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
+    <script src="{{url_for('static', filename='scripts/readURL.js')}}" > </script>
+    
+    
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+  </head>
+
+
+  <body id=body>
+    
+    <ul>
+      <li><a class="active" href="/configuracio"> Configuracio </a></li>
+      <li><a href="/">Videos en directe</a></li>
+      <li><a href="/parametres"> Parametrització</a></li>
+      <li><a href="/angles">Objectes i Angles </a></li>
+      <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+
+    </ul>
+
+    
+    {% if frame_valid == 1 %}
+    <h1 id="static" class=red > Frame Background 1</h1>
+    <h1 id="static2" class = green > Frame Background 2</h1>
+    {% elif frame_valid == 2 %}
+    <h1 id="static" class= green > Frame Background 1</h1>
+    <h1 id="static2" class = red > Frame Background 2</h1>
+    {% else %}
+    <h1 id="static" > Frame Background 1</h1>
+    <h1 id="static2" > Frame Background 2</h1>
+    {% endif %}
+
+    
+    
+
+    {% if frame_flagg != 0 %}
+    
+    <img id="sta_video" src="{{ url_for('background1_choosed') }}">
+
+    {% else %}
+    <img id="sta_video" src="{{ url_for('background1') }}">
+    
+    {% endif %}
+
+  
+    {% if frame_flagg2 != 0  %}
+    <img id="sta_video2" src="{{ url_for('background2_choosed') }}">
+   
+    {% else %}
+    <img id="sta_video2" src="{{ url_for('background2') }}">
+    
+    {% endif %}
+
+    <!--- BACKGROUND 1 -->
+
+    <form id="img_chooser" runat="server">
+      <input type='file' id="imgInp" /> <br> 
+      <img id="blah" src="#" alt="Imagen" />
+    </form>
+     
+    <form action="/enviarFrame" method="POST">
+      <p><input id='use_frame'  type="submit" name="nou_frame" value="ENVIAR ESCOLLIT"></p>
+      <input type='text' id='nom_frame' name="nom_frame"/> <br>
+    </form>
+
+    <!--- BACKGROUND 2 --->
+
+    <form id="img_chooser2" runat="server">
+      <input type='file' id="imgInp2" /> <br> 
+      <img id="blah2" src="#" alt="Imagen" />
+    </form>
+
+    <form action="/enviarFrame2" method="POST">
+      <p><input id=use_frame2  type="submit" name="nou_frame2" value="ENVIAR ESCOLLIT"></p>
+      <input type='text' id='nom_frame2' name="nom_frame2"/> <br>
+    </form>
+
+    
+    <!--- CAPTURAR BACKGROUND 1 -->
+
+    <form action="/treureFrame1">
+      <p><input id=capturar_frame1  type="submit" name="capturar_frame1" value="CAPTURAR" ></p>
+    </form>
+
+    <!--- CAPTURAR BACKGROUND 2 -->
+
+    <form action="/treureFrame2" >
+      <p><input id=capturar_frame2  type="submit" name="capturar_frame2" value="CAPTURAR" ></p>
+    </form>
+
+
+    <!--- GUARDAR COM A NOU BACKGROUND2  -->
+
+    <form action="/guardarFrame">
+      <p><input id = guardar_frame1 type="submit" name="guardar_frame1" value="GUARDAR PER DEFECTE"  ></p>
+    </form>
+
+    <form action="/guardarFrame2" >
+      <p><input id=guardar_frame2  type="submit" name="guardar_frame2" value="GUARDAR PER DEFECTE" ></p>
+    </form>
+
+    
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
+    <!------------ CALIBRATGE ------------->
+
+    <h1 id='calib'>CALIBRATGE</h1>
+    <img id="video" src="{{ url_for('video_keypoints') }}"> 
+    
+    <form action='/calibrate'>
+      <button type ='submit' id='btn_calibrar'>CALIBRATE</button>
+    </form>
+    
+  </body>
+</html>
