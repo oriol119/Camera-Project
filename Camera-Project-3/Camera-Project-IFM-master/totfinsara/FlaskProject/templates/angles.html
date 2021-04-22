@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='style/angles.css')}}" >
+    <link rel="icon" type="image/ico" href="{{url_for('static', filename='img/favicon.ico')}}">
+
+    <title>OpenCV</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  </head>
+
+
+  <body style="height: 900px;">
+
+    <ul>
+      <li><a href="/configuracio">Configuracio </a></li>
+      <li><a href="/">Videos en directe</a></li>
+      <li><a href="/parametres"> Parametrització</a></li>
+      <li><a class="active" href="/angles">Objectes i Angles </a></li>
+      <img id=logo src="{{ url_for('static', filename='img/nomgran.jpg') }}">
+    </ul>
+
+    
+
+
+    <h1 id="titol_video_kp">Viedo Keypoints</h1>
+    <img id="kp_video" src="{{ url_for('video_keypoints') }}">
+
+    <form action="/angles" >
+      <!--
+      {% if llista_bool == True %}
+      {% if llista|length > 0 %}
+      <span id = span_llista>
+        <p class="sor"> {{llista}} </p>
+      </span> 
+      {% else %}
+      <span id = span_llista>
+        <p class="sor"> No tenim llista perque no hi han objectes </p>
+      </span> 
+      {% endif %}
+      {% else %}
+      <span id = span_llista>
+        <p class="sor"> No tenim llista encara </p>
+      </span> 
+      {% endif %}  
+      -->
+      
+      
+      <p><input id="imprimir_llista" type="submit"/> </p>
+      
+      
+      
+      <table id="taula">
+        <tr>
+        {% for header in headings %}
+          <th ><a class="taula_font">{{header}}</a></th>
+        {% endfor %}
+        </tr>
+        
+        {% for row in llista_definitiva %}
+        <tr>
+          {%for i in 0,1,2,3,4 %}
+          <td><a class="taula_font">{{row[i]}}</a></td>
+          {% endfor %}
+          
+        </tr>
+        {% endfor %}
+  
+      </table>
+      
+
+      
+      
+      <table id="taula2">
+        
+        <tr>
+        {% for header2 in headings2 %}
+          <th ><a class="taula_font">{{header2}}</a></th>
+        {% endfor %}
+        </tr>
+
+        {% for row2 in llista_definitiva2 %}
+        <tr>
+          {% for k in 0,1,2,3,4,5 %}
+          <td><a class="taula_font">{{row2[k]}}</a></td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        
+
+      </table>
+
+
+    </form> 
+
+  </body>
+  <footer > 
+
+  </footer>
+</html>
+
+
+
+
+
+
